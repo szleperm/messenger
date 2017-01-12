@@ -1,0 +1,10 @@
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.hibernate.sql: TRACE
+    org.springframework.web: DEBUG
+spring:
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create
