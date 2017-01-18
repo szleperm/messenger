@@ -37,10 +37,8 @@ public class MessageService {
 	@PreAuthorize("isAuthenticated()")
 	public void create(MessageDTO messageDTO) {
 		Message message = messageRepository.save(new Message(messageDTO));
-		userRepository
-			.findByUsername(message.getAuthor())
-				.ifPresent(u -> {message.setUser(u);;
-								});
+		userRepository.findByUsername(message.getAuthor())
+						.ifPresent(u -> message.setUser(u));
 		
 	}
 	@Transactional(readOnly=true)

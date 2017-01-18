@@ -16,8 +16,8 @@ class UserRepositorySpec extends Specification{
 	UserRepository userRepository
 	@Autowired
 	TestEntityManager entityManager
-	static String NAME = "example_user"
-	static String EMAIL = "example@email.org"
+	static final String NAME = "example_user"
+	static final String EMAIL = "example@email.org"
 	Long id
 	User user
 	def setup(){

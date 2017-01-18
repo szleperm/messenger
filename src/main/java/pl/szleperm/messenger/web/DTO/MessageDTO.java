@@ -34,6 +34,7 @@ public class MessageDTO {
 		this.id = message.getId();
 		this.title = message.getTitle();
 		this.content = message.getContent();
+		this.author = message.getAuthor();
 		this.authorDetails = new UserDTO(message.getUser());
 		this.createdDate = message.getCreatedDate();
 	}

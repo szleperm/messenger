@@ -17,8 +17,8 @@ class MessageRepositorySpec extends Specification{
 	TestEntityManager entityManager
 	@Autowired
 	MessageRepository messageRepository
-	static String TITLE = "message title"
-	static String CONTENT = "message content"
+	static final String TITLE = "message title"
+	static final String CONTENT = "message content"
 	Long id
 	Message message
 	def setup(){

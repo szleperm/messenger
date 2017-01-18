@@ -14,7 +14,7 @@ class MessengerApplicationSpec extends Specification{
 	WebApplicationContext context
 	
 	@Unroll
-	def "should boot up without errors"() {
+	def "should boot up with bean #bean"() {
 		expect: "web application context exists and contains beans"
 			context != null
 			context.containsBean(bean)

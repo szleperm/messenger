@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException
 import pl.szleperm.messenger.domain.Role
 import pl.szleperm.messenger.domain.User
 import pl.szleperm.messenger.repository.UserRepository
+import pl.szleperm.messenger.security.UserDetailsServiceImpl
 import spock.lang.Specification
 
 
@@ -35,7 +36,7 @@ class UserDetailsServiceSpec extends Specification{
 			user.getRoles().add(role)
 		and: "set up repository"
 			repository.findByUsername(userName) >> Optional.ofNullable(user)
-		when: "function called"
+		when: "function loadUserByUsername called"
 			def userDetails = service.loadUserByUsername("existing username")
 		then: "should return object"
 			notThrown(UsernameNotFoundException)

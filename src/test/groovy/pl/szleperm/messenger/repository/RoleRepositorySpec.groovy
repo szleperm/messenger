@@ -14,7 +14,7 @@ class RoleRepositorySpec extends Specification{
 	TestEntityManager entityManager
 	@Autowired
 	RoleRepository roleRepository
-	static String ROLE_NAME = "ROLE_1"
+	static final String ROLE_NAME = "ROLE_1"
 	Long id
 	Role role
 	def setup(){

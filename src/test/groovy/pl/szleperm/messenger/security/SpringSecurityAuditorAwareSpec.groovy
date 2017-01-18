@@ -13,7 +13,7 @@ import spock.util.mop.ConfineMetaClassChanges
 class SpringSecurityAuditorAwareSpec extends Specification{
 
 	@Unroll
-	def "should return #auditor"() {
+	def "should return '#auditor'"() {
 		setup:
 		AuditorAware auditorAware = new SpringSecurityAuditorAware()
 		SecurityContext context = Stub(SecurityContext)
@@ -21,7 +21,7 @@ class SpringSecurityAuditorAwareSpec extends Specification{
 		SecurityContextHolder.setContext(context)
 		context.authentication >> authentication
 		authentication.getName() >> username
-		expect:
+		expect: "return current auditor"
 		auditorAware.getCurrentAuditor() == auditor
 		where:
 		username || auditor

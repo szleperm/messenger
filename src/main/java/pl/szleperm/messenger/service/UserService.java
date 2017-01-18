@@ -30,12 +30,10 @@ public class UserService {
 		this.userRepository = userRepository;
 		this.roleRepository = roleRepository;
 	}
-
 	@Transactional(readOnly=true)
 	public Optional<User> findUserByName(String name) {
 		return userRepository.findByUsername(name);
 	}
-	
 	@Transactional
 	public User create(RegisterDTO registerDTO) {
 		User user = new User();
@@ -49,15 +47,12 @@ public class UserService {
 					);
 		return userRepository.save(user);
 	}
-	
 	@Transactional(readOnly=true)
 	public Optional<User> findUserByEmail(String email) {
 		return userRepository.findByEmail(email);
 	}
-	
 	@Transactional(readOnly=true)
 	public Optional<User> findById(Long id) {
-		
 		return userRepository.findById(id);
 	}
 	@Transactional
@@ -99,6 +94,5 @@ public class UserService {
 	@Transactional(readOnly=true)
 	public Optional<Role> findRoleByName(String role) {
 		return roleRepository.findByName(role);
-	}
-	
+	}	
 }
