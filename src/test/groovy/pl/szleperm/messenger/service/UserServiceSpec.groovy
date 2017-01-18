@@ -13,15 +13,14 @@ import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
 
-
 class UserServiceSpec extends Specification{
 	UserRepository userRepository
 	RoleRepository roleRepository
-	UserService service
+	UserService userService
 	
 	@Shared User user
 	Role role
-	static final String USERNAME = "username" 
+	static final String USERNAME = "user" 
 	static final String PASSWORD = "password"
 	static final String EMAIL = "email@email"
 	static final String ROLE_NAME = "ROLE_USER"
@@ -30,7 +29,7 @@ class UserServiceSpec extends Specification{
 	def setup(){
 		userRepository = Mock(UserRepository)
 		roleRepository = Mock(RoleRepository)
-		service = new UserService(userRepository, roleRepository)
+		userService = new UserService(userRepository, roleRepository)
 		role = new Role(ROLE_NAME)
 		user = new User()
 		user.setId(ID)
@@ -41,7 +40,7 @@ class UserServiceSpec extends Specification{
 	}
 	def "should find user by name"(){
 		when:
-			service.findUserByName(USERNAME)
+			userService.findUserByName(USERNAME)
 		then:
 			1* userRepository.findByUsername(USERNAME) >> Optional.of(user)
 	}
@@ -54,7 +53,7 @@ class UserServiceSpec extends Specification{
 			registerDTO.setConfirmPassword(PASSWORD)
 			BCryptPasswordEncoder encoder = new BCryptPasswordEncoder()
 		when:
-			service.create(registerDTO)
+			userService.create(registerDTO)
 		then:
 			1 * roleRepository.findAll() >> user.getRoles().toList()
 			1 * userRepository.save({(it.roles == user.roles) && 
@@ -62,13 +61,13 @@ class UserServiceSpec extends Specification{
 	}
 	def "should find user by email"(){
 		when:
-			service.findUserByEmail(EMAIL)
+			userService.findUserByEmail(EMAIL)
 		then:
 			1 * userRepository.findByEmail(EMAIL) >> Optional.of(user)
 	}
 	def "should find user by id"(){
 		when:
-			service.findById(ID)
+			userService.findById(ID)
 		then:
 			1 * userRepository.findById(ID) >> Optional.of(user)
 	}
@@ -80,7 +79,7 @@ class UserServiceSpec extends Specification{
 			passwordDTO.setUsername(USERNAME)
 			passwordDTO.setNewPassword(PASSWORD)
 		when:
-			service.changePassword(passwordDTO)
+			userService.changePassword(passwordDTO)
 		then:
 			1 * userRepository.findByUsername(USERNAME) >> Optional.ofNullable(result)
 			calls * userRepository.save({encoder.matches(PASSWORD, it.password)})
@@ -91,7 +90,7 @@ class UserServiceSpec extends Specification{
 	}
 	def "should find all users"(){
 		when:
-			service.findAll()
+			userService.findAll()
 		then:
 			1 * userRepository.findAll()
 	}
@@ -100,7 +99,7 @@ class UserServiceSpec extends Specification{
 		setup:
 			UserDTO userDTO = new UserDTO(user)
 		when:
-			service.update(userDTO)
+			userService.update(userDTO)
 		then:
 			1 * userRepository.findById(ID) >> Optional.ofNullable(result)
 			1 * roleRepository.findByName(role.getName()) >> Optional.of(role)
@@ -114,13 +113,13 @@ class UserServiceSpec extends Specification{
 	}
 	def "should delete user"(){
 		when:
-			service.delete(ID)
+			userService.delete(ID)
 		then:
 			1 * userRepository.delete(ID)
 	}
 	def "should find role by name"(){
 		when:
-			service.findRoleByName(ROLE_NAME)
+			userService.findRoleByName(ROLE_NAME)
 		then:
 			1 * roleRepository.findByName(ROLE_NAME)
 	}
