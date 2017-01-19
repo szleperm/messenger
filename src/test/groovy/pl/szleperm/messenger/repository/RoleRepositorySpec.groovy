@@ -3,8 +3,9 @@ package pl.szleperm.messenger.repository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
-import org.springframework.web.context.WebApplicationContext
+
 import pl.szleperm.messenger.domain.Role
+import pl.szleperm.messenger.testutils.Constants
 import spock.lang.Specification
 
 @DataJpaTest
@@ -14,11 +15,10 @@ class RoleRepositorySpec extends Specification{
 	TestEntityManager entityManager
 	@Autowired
 	RoleRepository roleRepository
-	static final String ROLE_NAME = "ROLE_1"
 	Long id
 	Role role
 	def setup(){
-		id = entityManager.persistAndGetId(new Role(ROLE_NAME))
+		id = entityManager.persistAndGetId(new Role(Constants.USER))
 	}
 	def cleanup(){
 		entityManager.remove(role)
@@ -26,9 +26,9 @@ class RoleRepositorySpec extends Specification{
 	}
 	def "should find role by name"() {
 		when: "find role by name"
-			role = roleRepository.findByName(ROLE_NAME).get()
+			role = roleRepository.findByName(Constants.USER).get()
 		then: "role name should match"
-			role.name == ROLE_NAME
+			role.name == Constants.USER
 			!roleRepository.findByName("").isPresent()	
 	}
 }

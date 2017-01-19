@@ -13,11 +13,12 @@ import pl.szleperm.messenger.domain.User
 import pl.szleperm.messenger.repository.MessageRepository
 import pl.szleperm.messenger.repository.RoleRepository
 import pl.szleperm.messenger.repository.UserRepository
+import pl.szleperm.messenger.testutils.Constants
 import pl.szleperm.messenger.web.DTO.MessageDTO
 import pl.szleperm.messenger.web.DTO.PasswordDTO
 import pl.szleperm.messenger.web.DTO.UserDTO
-import spock.lang.Shared
 import spock.lang.Specification
+
 
 @SpringBootTest
 class ServiceMethodSecuritySpec extends Specification{
@@ -35,15 +36,7 @@ class ServiceMethodSecuritySpec extends Specification{
 	MessageDTO messageDTO
 	Message message
 	Role role
-	static final String USERNAME = "user" 
-	static final String OTHER_USERNAME = "other_user"
-	static final String PASSWORD = "password"
-	static final String EMAIL = "email@email"
-	static final String ROLE_USER = "USER"
-	static final String ROLE_ADMIN = "ADMIN"
-	static final String TITLE = "message title"
-	static final String CONTENT = "message content"
-	static final Long ID = 10L
+	
 	
 	def setup(){
 		userRepository = Mock(UserRepository)
@@ -53,30 +46,30 @@ class ServiceMethodSecuritySpec extends Specification{
 		ReflectionTestUtils.setField(userService,"roleRepository", roleRepository)
 		ReflectionTestUtils.setField(messageService,"userRepository", userRepository)
 		ReflectionTestUtils.setField(messageService,"messageRepository", messageRepository)
-		role = new Role(ROLE_USER)
+		role = new Role(Constants.USER)
 		user = new User()
-		user.setId(ID)
-		user.setUsername(USERNAME)
-		user.setEmail(EMAIL)
-		user.setPassword(PASSWORD)
+		user.setId(Constants.ID)
+		user.setUsername(Constants.USERNAME)
+		user.setEmail(Constants.EMAIL)
+		user.setPassword(Constants.PASSWORD)
 		user.getRoles().add(role)
-		message = new Message(ID, TITLE, CONTENT, USERNAME)
+		message = new Message(Constants.ID, Constants.TITLE, Constants.CONTENT, Constants.USERNAME)
 		messageDTO = new MessageDTO(message)
 	}
-	@WithMockUser(username=USERNAME)
+	@WithMockUser(username=Constants.USERNAME)
 	def "should change password when username match"(){
 		setup:
 			PasswordDTO passwordDTO = new PasswordDTO()
-			passwordDTO.setUsername(USERNAME)
-			passwordDTO.setNewPassword(PASSWORD)
+			passwordDTO.setUsername(Constants.USERNAME)
+			passwordDTO.setNewPassword(Constants.PASSWORD)
 		when:
 			userService.changePassword(passwordDTO)
 		then:
-			1 * userRepository.findByUsername(USERNAME) >> Optional.ofNullable(user)
+			1 * userRepository.findByUsername(Constants.USERNAME) >> Optional.ofNullable(user)
 			1 * userRepository.save(_)
 		
 	}
-	@WithMockUser(username=OTHER_USERNAME, roles=ROLE_ADMIN)
+	@WithMockUser(username=Constants.OTHER_USERNAME, roles=Constants.ADMIN)
 	def "should not change password when username doesn't match"(){
 		when:
 			userService.changePassword(new PasswordDTO())
@@ -96,18 +89,18 @@ class ServiceMethodSecuritySpec extends Specification{
 			0 * userRepository.save(_)
 		
 	}
-	@WithMockUser(roles=ROLE_ADMIN)
+	@WithMockUser(roles=Constants.ADMIN)
 	def "should update user when has role ADMIN"(){
 		setup:
 			UserDTO userDTO = new UserDTO(user)
 		when:
 			userService.update(userDTO)
 		then:
-			1 * userRepository.findById(ID) >> Optional.ofNullable(user)
+			1 * userRepository.findById(Constants.ID) >> Optional.ofNullable(user)
 			1 * roleRepository.findByName(role.getName()) >> Optional.of(role)
 			1 * userRepository.save(_) 
 	}
-	@WithMockUser(roles=ROLE_USER)
+	@WithMockUser(roles=Constants.USER)
 	def "should not update user when hasn't role ADMIN"(){
 		setup:
 			UserDTO userDTO = new UserDTO(user)
@@ -131,17 +124,17 @@ class ServiceMethodSecuritySpec extends Specification{
 			0 * roleRepository.findByName(_) >> Optional.of(role)
 			0 * userRepository.save(_)
 	}
-	@WithMockUser(roles=ROLE_ADMIN)
+	@WithMockUser(roles=Constants.ADMIN)
 	def "should delete user when has role ADMIN"(){
 		when:
-			userService.delete(ID)
+			userService.delete(Constants.ID)
 		then:
-			1 * userRepository.delete(ID)
+			1 * userRepository.delete(Constants.ID)
 	}
-	@WithMockUser(roles=ROLE_USER)
+	@WithMockUser(roles=Constants.USER)
 	def "should not delete user when hasn't role ADMIN"(){
 		when:
-			userService.delete(ID)
+			userService.delete(Constants.ID)
 		then:
 			thrown(AccessDeniedException.class)
 			0 * userRepository.delete(_)
@@ -149,28 +142,28 @@ class ServiceMethodSecuritySpec extends Specification{
 	@WithAnonymousUser
 	def "should not delete user when anonymous"(){
 		when:
-			userService.delete(ID)
+			userService.delete(Constants.ID)
 		then:
 			thrown(AccessDeniedException.class)
 			0 * userRepository.delete(_)
 	}
-	@WithMockUser(username=USERNAME, roles=ROLE_USER)
+	@WithMockUser(username=Constants.USERNAME, roles=Constants.USER)
 	def "should update message when is author"(){
 		when:
 			messageService.save(messageDTO)
 		then:
-			1 * messageRepository.findById(ID) >> Optional.ofNullable(message)
+			1 * messageRepository.findById(Constants.ID) >> Optional.ofNullable(message)
 			1 * messageRepository.save(message)
 	}
-	@WithMockUser(username=OTHER_USERNAME, roles=ROLE_ADMIN)
+	@WithMockUser(username=Constants.OTHER_USERNAME, roles=Constants.ADMIN)
 	def "should update message when is ADMIN"(){
 		when:
 			messageService.save(messageDTO)
 		then:
-			1 * messageRepository.findById(ID) >> Optional.ofNullable(message)
+			1 * messageRepository.findById(Constants.ID) >> Optional.ofNullable(message)
 			1 * messageRepository.save(message)
 	}
-	@WithMockUser(username=OTHER_USERNAME, roles=ROLE_USER)
+	@WithMockUser(username=Constants.OTHER_USERNAME, roles=Constants.USER)
 	def "should not update message when isn't author and ADMIN"(){
 		when:
 			messageService.save(messageDTO)
@@ -194,7 +187,7 @@ class ServiceMethodSecuritySpec extends Specification{
 			messageService.create(messageDTO)
 		then:
 			1 * messageRepository.save(new Message(messageDTO)) >> message
-			1 * userRepository.findByUsername(USERNAME) >> Optional.ofNullable(null)
+			1 * userRepository.findByUsername(Constants.USERNAME) >> Optional.ofNullable(null)
 	}
 	@WithAnonymousUser
 	def "should not create message when is anonymous"(){
@@ -206,3 +199,4 @@ class ServiceMethodSecuritySpec extends Specification{
 			0 * userRepository.findByUsername(_) 
 	}
 }
+

@@ -8,6 +8,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
 
 import pl.szleperm.messenger.domain.Message
 import pl.szleperm.messenger.domain.projection.MessageSimplifiedProjection
+import pl.szleperm.messenger.testutils.Constants
 import spock.lang.Specification
 
 @DataJpaTest
@@ -17,12 +18,10 @@ class MessageRepositorySpec extends Specification{
 	TestEntityManager entityManager
 	@Autowired
 	MessageRepository messageRepository
-	static final String TITLE = "message title"
-	static final String CONTENT = "message content"
 	Long id
 	Message message
 	def setup(){
-		message = new Message(TITLE, CONTENT)
+		message = new Message(Constants.TITLE, Constants.CONTENT)
 		id = entityManager.persistAndGetId((message))		
 	}
 	def cleanup(){
@@ -33,8 +32,8 @@ class MessageRepositorySpec extends Specification{
 		when: "find message by id"
 			message = messageRepository.findById(id).get()
 		then: "title and content should match"
-			message.title == TITLE
-			message.content == CONTENT
+			message.title == Constants.TITLE
+			message.content == Constants.CONTENT
 			!messageRepository.findById(0).isPresent()			
 	}
 	def "should find all messages by projection"(){

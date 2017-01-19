@@ -1,12 +1,11 @@
 package pl.szleperm.messenger.repository
 
-import java.rmi.activation.ActivationSystem
-
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
 
 import pl.szleperm.messenger.domain.User
+import pl.szleperm.messenger.testutils.Constants
 import spock.lang.Specification
 
 @DataJpaTest
@@ -16,12 +15,10 @@ class UserRepositorySpec extends Specification{
 	UserRepository userRepository
 	@Autowired
 	TestEntityManager entityManager
-	static final String NAME = "example_user"
-	static final String EMAIL = "example@email.org"
 	Long id
 	User user
 	def setup(){
-		id = entityManager.persistAndGetId(new User(NAME, EMAIL))
+		id = entityManager.persistAndGetId(new User(Constants.USERNAME, Constants.EMAIL))
 	}
 	def cleanup(){
 		entityManager.remove(user)
@@ -31,24 +28,24 @@ class UserRepositorySpec extends Specification{
 		when: "find user by Id"
 			user = userRepository.findById(id).get()
 		then: "username and email should match"
+			user.username == Constants.USERNAME
+			user.email == Constants.EMAIL
 			!userRepository.findById(0).isPresent()
-			user.username == NAME
-			user.email == EMAIL
 	}
 	def "should find user by username"(){
 		when: "find user by Name"
-			user = userRepository.findByUsername(NAME).get()
+			user = userRepository.findByUsername(Constants.USERNAME).get()
 		then: "username and email should match"
-			user.username == NAME
-			user.email == EMAIL
+			user.username == Constants.USERNAME
+			user.email == Constants.EMAIL
 			!userRepository.findByUsername("").isPresent()
 	}
 	def "should find user by email"(){
 		when: "find user by email"
-			user = userRepository.findByEmail(EMAIL).get()
+			user = userRepository.findByEmail(Constants.EMAIL).get()
 		then: "username and email should match"
-			user.username == NAME
-			user.email == EMAIL
+			user.username == Constants.USERNAME
+			user.email == Constants.EMAIL
 			!userRepository.findByEmail("").isPresent()
 	}
 }
