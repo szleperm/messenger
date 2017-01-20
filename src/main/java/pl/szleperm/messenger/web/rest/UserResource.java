@@ -1,5 +1,6 @@
 package pl.szleperm.messenger.web.rest;
 
+import java.security.Principal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -62,10 +64,12 @@ public class UserResource {
 				.ok(Collections.singletonMap("message", String.format("User %s deleted", existingUser.get().getUsername())));
 	}
 	@RequestMapping(value="/{id}",method=RequestMethod.PUT)
-	public ResponseEntity<?> updateUser(@RequestBody @Valid UserDTO userDTO, @PathVariable long id) {
-		if(!(id == userDTO.getId())){
+	public ResponseEntity<?> updateUser(@RequestBody @Valid UserDTO userDTO, @PathVariable long id, Principal principal) {
+		if(!(id == userDTO.getId())) {
 			return new ResponseEntity<Map<String, String>>(HttpStatus.CONFLICT);
-		}
+		}else if(userService.findById(id)
+							.map(u -> u.getUsername() == principal.getName())
+							.get()) throw new AccessDeniedException("not allowed to update current user");
 		userService.update(userDTO);
 		return ResponseEntity.ok(userDTO);
 	}

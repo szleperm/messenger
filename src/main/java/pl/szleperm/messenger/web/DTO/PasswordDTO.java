@@ -15,6 +15,17 @@ public class PasswordDTO {
 	private String newPassword;
 	private String confirmNewPassword;
 	
+	public PasswordDTO() {
+	}
+	
+	public PasswordDTO(String username, String oldPassword, String newPassword, String confirmNewPassword) {
+		super();
+		this.username = username;
+		this.oldPassword = oldPassword;
+		this.newPassword = newPassword;
+		this.confirmNewPassword = confirmNewPassword;
+	}
+
 	public String getUsername() {
 		return username;
 	}

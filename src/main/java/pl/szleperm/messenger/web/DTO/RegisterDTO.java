@@ -17,6 +17,16 @@ public class RegisterDTO {
 	@Size(min=3,max=50)
 	private String password;
 	private String confirmPassword;
+	public RegisterDTO() {
+	}
+	public RegisterDTO(String username, String email, String password, String confirmPassword) {
+		super();
+		this.username = username;
+		this.email = email;
+		this.password = password;
+		this.confirmPassword = confirmPassword;
+	}
+
 	public String getUsername() {
 		return username;
 	}

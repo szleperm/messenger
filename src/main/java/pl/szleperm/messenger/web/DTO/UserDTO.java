@@ -1,5 +1,6 @@
 package pl.szleperm.messenger.web.DTO;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,7 +24,7 @@ public class UserDTO {
 	@Email
 	@NotEmpty
 	private String email;
-	private List<String> roles;
+	private List<String> roles = new ArrayList<>();
 	public UserDTO() {
 	}
 	public UserDTO(User user) {
@@ -33,6 +34,13 @@ public class UserDTO {
 		this.roles = user.getRoles().stream()
 						.map(r -> r.getName())
 						.collect(Collectors.toList());
+	}
+	public UserDTO(Long id, String name, String email, List<String> roles) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.email = email;
+		this.roles = roles;
 	}
 	public Long getId() {
 		return id;
