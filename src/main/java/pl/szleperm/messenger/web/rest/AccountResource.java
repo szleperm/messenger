@@ -53,7 +53,7 @@ public class AccountResource {
 	}
 	@RequestMapping(value="/register", method = RequestMethod.POST)
 	public ResponseEntity<?> register(@RequestBody @Valid RegisterDTO registerDTO){
-		userService.create(registerDTO);
+		userService.create(registerDTO).getId();
 		return ResponseEntity.ok().build();
 	}
 	@RequestMapping(value="/register/available", method=RequestMethod.POST)
@@ -63,7 +63,7 @@ public class AccountResource {
 					.addValidationRule("email", email -> !userService.findUserByEmail(email).isPresent())
 					.build();
 	}
-	@RequestMapping(value="/change_password", method=RequestMethod.PUT)
+	@RequestMapping(value="/change_password", method=RequestMethod.POST)
 	public ResponseEntity<?> changePassword(@RequestBody @Valid PasswordDTO passwordDTO) {
 		userService.changePassword(passwordDTO);
 		return ResponseEntity.ok().build();
