@@ -8,7 +8,7 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class MessengerApplicationSpec extends Specification{
+class MessengerApplicationIntegrationSpec extends Specification{
 	
 	@Autowired
 	WebApplicationContext context
