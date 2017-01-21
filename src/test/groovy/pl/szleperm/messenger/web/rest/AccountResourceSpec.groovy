@@ -1,164 +1,76 @@
 package pl.szleperm.messenger.web.rest
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
+import static pl.szleperm.messenger.testutils.Constants.*
 
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.json.BasicJsonParser
-import org.springframework.boot.test.autoconfigure.json.AutoConfigureJson
-import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
-import org.springframework.boot.test.context.SpringBootTest
+import java.security.Principal
+
 import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
-import org.springframework.mock.web.MockHttpServletResponse
-import org.springframework.security.test.context.support.WithAnonymousUser
-import org.springframework.security.test.context.support.WithMockUser
-import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.setup.MockMvcBuilders
-import org.springframework.transaction.annotation.Propagation
-import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.context.WebApplicationContext
 
-import groovy.json.JsonOutput
-import groovy.json.JsonSlurper
+import pl.szleperm.messenger.domain.Role
+import pl.szleperm.messenger.domain.User
+import pl.szleperm.messenger.service.UserService
+import pl.szleperm.messenger.web.DTO.PasswordDTO
+import pl.szleperm.messenger.web.DTO.RegisterDTO
+import pl.szleperm.messenger.web.DTO.UserDTO
+import pl.szleperm.messenger.web.validator.PasswordDTOValidator
+import pl.szleperm.messenger.web.validator.RegisterDTOValidator
 import spock.lang.Specification
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@Transactional(propagation=Propagation.REQUIRES_NEW )
 class AccountResourceSpec extends Specification{
-	
-	@Autowired
-	MockMvc mvc
-	@Autowired
-	WebApplicationContext context
-	JsonSlurper json = new JsonSlurper()
+	UserService userService
+	AccountResource resource
+	def user
 	def setup(){
-		mvc = MockMvcBuilders
-				.webAppContextSetup(context)
-				.apply(springSecurity())
-				.build()
+		user = [id: VALID_ID,
+				username: VALID_USERNAME, 
+				email: VALID_EMAIL, 
+				roles: [[name: VALID_ROLE] as Role] ] as User
+		userService = Mock(UserService)
+		def passwordDTOValidator = new PasswordDTOValidator(userService)
+		def registerDTOValidator = new RegisterDTOValidator(userService)
+		resource = new AccountResource(userService, registerDTOValidator, passwordDTOValidator)
 	}
-	@WithAnonymousUser
-	def "should redirect when user is anonymous"(){
-		expect:
-			mvc.perform(get("/me")).andExpect(status().is3xxRedirection())
-	}
-	@WithMockUser(username="user", password="user")
-	def "should get account data"(){
-		when:
-			MockHttpServletResponse response = mvc.perform(get("/me")).andReturn().getResponse()
-			def content = json.parseText(response.contentAsString) as Map
-		then:
-			response.status == HttpStatus.OK.value	
-			content["id"] as int == 1						
-			content["name"] as String == "user"
-			content["email"] as String == "user@user"
-			(content["roles"] as List).size() == 1
-			(content["roles"] as List).contains("ROLE_USER")
-	}
-	@WithAnonymousUser
-	def "should return remote validation response"(){
-		given: "prepare json request with username: 'user' and email 'user@user'"
-			def requestBody = JsonOutput.toJson([username: "user", email: "user@user"])
-		when: 
-			def response = mvc.perform(post("/register/available")
-								.content(requestBody)
-								.contentType(MediaType.APPLICATION_JSON_VALUE)
-								.with(csrf().asHeader()))
-							.andReturn().response
-			def content = json.parseText(response.contentAsString) as Map
-		then:
-			response.status == HttpStatus.OK.value
-			content.size() == 2
-			content["username"] as boolean == false
-			content["email"] as boolean == false
-	}
-	@WithMockUser(username="user", password="user")
-	def "should change password"(){
-		given:
-			def requestBody = JsonOutput.toJson([username: "user",
-											oldPassword: "user", 
-											newPassword: "1234", 
-											confirmNewPassword: "1234"])
-									
-		when:
-			def response = mvc.perform(post("/change_password")
-								.content(requestBody)
-								.contentType(MediaType.APPLICATION_JSON_VALUE)
-								.with(csrf().asHeader()))
-							.andReturn().response
-		then:
-			response.status == HttpStatus.OK.value
-	}
-	@WithAnonymousUser
-	def "should not change password when user is anonymous"(){
-		given:
-			def requestBody = JsonOutput.toJson([username: "user",
-											oldPassword: "user",
-											newPassword: "1234",
-											confirmNewPassword: "1234"])
-		when:
-			def response = mvc.perform(post("/change_password")
-								.content(requestBody)
-								.contentType(MediaType.APPLICATION_JSON_VALUE)
-								.with(csrf().asHeader()))
-							.andReturn().response
-		then:
-			response.status == HttpStatus.FOUND.value
-	}
-	@WithMockUser(username="admin", password="admin")
-	def "should not change password when other user is authorized"(){
-		given:
-			def requestBody = JsonOutput.toJson([username: "user",
-											oldPassword: "user",
-											newPassword: "1234",
-											confirmNewPassword: "1234"])
-		when:
-			def response = mvc.perform(post("/change_password")
-								.content(requestBody)
-								.contentType(MediaType.APPLICATION_JSON_VALUE)
-								.with(csrf().asHeader()))
-							.andReturn().response
-		then:
-			response.status == HttpStatus.FORBIDDEN.value
-	}
-	@WithAnonymousUser
 	def "should register user"(){
 		given:
-			def requestBody = JsonOutput.toJson([username: "new_user",
-											email: "email@email",
-											password: "1234",
-											confirmPassword: "1234"])
+			def registerDTO = [username: VALID_USERNAME] as RegisterDTO
 		when:
-			def response = mvc.perform(post("/register")
-								.content(requestBody)
-								.contentType(MediaType.APPLICATION_JSON_VALUE)
-								.with(csrf().asHeader()))
-							.andReturn().response
+			def response = resource.register(registerDTO)
 		then:
-			response.status == HttpStatus.OK.value
+			1 * userService.create(registerDTO)
+			response.statusCode == HttpStatus.OK
 	}
-	@WithAnonymousUser
-	def "should not register user when username already in use"(){
+	def "should change password"(){
 		given:
-			def requestBody = JsonOutput.toJson([username: "user",
-											email: "email@email",
-											password: "1234",
-											confirmPassword: "1234"])
+			def passwordDTO = [password: VALID_PASSWORD] as PasswordDTO
 		when:
-			def response = mvc.perform(post("/register")
-								.content(requestBody)
-								.contentType(MediaType.APPLICATION_JSON_VALUE)
-								.with(csrf().asHeader()))
-							.andReturn().response
-			def content = json.parseText(response.contentAsString) as Map
+			def response = resource.changePassword(passwordDTO)
 		then:
-			response.status == HttpStatus.BAD_REQUEST.value
-			(content["field"] as List).contains("username")
-			(content["message"] as List).contains("Username user already in use")
+			1 * userService.changePassword(passwordDTO)
+			response.statusCode == HttpStatus.OK
+	}
+	def "should return user details"(){
+		given:
+			def principal = Stub(Principal){
+				getName() >> VALID_USERNAME
+			}
+			userService.findUserByName(VALID_USERNAME) >> Optional.ofNullable(user)
+		when:
+			def response = resource.userDetails(principal)
+		then:
+			response.statusCode == HttpStatus.OK
+			(response.body as UserDTO).name == VALID_USERNAME
+			(response.body as UserDTO).email == VALID_EMAIL
+	}
+	def "should not return user details when user doesn't exist"(){
+		given:
+			def principal = Stub(Principal){
+				getName() >> NOT_VALID_USERNAME
+			}
+			userService.findUserByName(NOT_VALID_USERNAME) >> Optional.ofNullable(null)
+		when:
+			def response = resource.userDetails(principal)
+		then:
+			response.statusCode == HttpStatus.NOT_FOUND
+			response.body == null
 	}
 }
