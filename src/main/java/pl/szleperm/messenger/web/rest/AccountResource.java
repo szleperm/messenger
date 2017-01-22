@@ -53,7 +53,7 @@ public class AccountResource {
 	}
 	@RequestMapping(value="/register", method = RequestMethod.POST)
 	public ResponseEntity<?> register(@RequestBody @Valid RegisterDTO registerDTO){
-		userService.create(registerDTO).getId();
+		userService.create(registerDTO);
 		return ResponseEntity.ok().build();
 	}
 	@RequestMapping(value="/register/available", method=RequestMethod.POST)

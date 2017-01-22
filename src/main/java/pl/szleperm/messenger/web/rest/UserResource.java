@@ -68,7 +68,7 @@ public class UserResource {
 		if(!(id == userDTO.getId())) {
 			return new ResponseEntity<Map<String, String>>(HttpStatus.CONFLICT);
 		}else if(userService.findById(id)
-							.map(u -> u.getUsername() == principal.getName())
+							.map(u -> (u.getUsername() == principal.getName()))
 							.get()) throw new AccessDeniedException("not allowed to update current user");
 		userService.update(userDTO);
 		return ResponseEntity.ok(userDTO);
