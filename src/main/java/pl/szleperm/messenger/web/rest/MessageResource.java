@@ -1,22 +1,16 @@
 package pl.szleperm.messenger.web.rest;
 
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 import pl.szleperm.messenger.domain.Message;
 import pl.szleperm.messenger.service.MessageService;
 import pl.szleperm.messenger.web.DTO.MessageDTO;
+
+import javax.validation.Valid;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/messages")
@@ -31,14 +25,14 @@ public class MessageResource {
 	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<?> getAll() {
 		return ResponseEntity.ok(messageService.getAllSimplified().stream()
-										.map(m -> new MessageDTO(m))
+										.map(MessageDTO::new)
 										.collect(Collectors.toList()));
 	}
 	@RequestMapping(value = "/{id}", method=RequestMethod.GET)
 	public ResponseEntity<?> getMessage(@PathVariable long id) {
 		return messageService.findById(id)
 					.map(m -> ResponseEntity.ok(new MessageDTO(m)))
-					.orElse(new ResponseEntity<MessageDTO>(HttpStatus.NOT_FOUND));
+					.orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
 	}
 	@RequestMapping(method=RequestMethod.POST)
 	public ResponseEntity<?> createMessage(@RequestBody @Valid MessageDTO message){

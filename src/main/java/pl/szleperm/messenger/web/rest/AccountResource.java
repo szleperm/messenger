@@ -1,20 +1,10 @@
 package pl.szleperm.messenger.web.rest;
 
-import java.security.Principal;
-import java.util.Map;
-
-import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 import pl.szleperm.messenger.service.UserService;
 import pl.szleperm.messenger.web.DTO.PasswordDTO;
 import pl.szleperm.messenger.web.DTO.RegisterDTO;
@@ -22,6 +12,10 @@ import pl.szleperm.messenger.web.DTO.UserDTO;
 import pl.szleperm.messenger.web.rest.utils.RemoteValidationResponseBuilder;
 import pl.szleperm.messenger.web.validator.PasswordDTOValidator;
 import pl.szleperm.messenger.web.validator.RegisterDTOValidator;
+
+import javax.validation.Valid;
+import java.security.Principal;
+import java.util.Map;
 
 @RestController
 public class AccountResource {
@@ -49,7 +43,7 @@ public class AccountResource {
 	public ResponseEntity<?> userDetails(Principal principal){
 		return userService.findUserByName(principal.getName())
 					.map(u -> ResponseEntity.ok(new UserDTO(u)))
-					.orElse(new ResponseEntity<UserDTO>(HttpStatus.NOT_FOUND));
+					.orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
 	}
 	@RequestMapping(value="/register", method = RequestMethod.POST)
 	public ResponseEntity<?> register(@RequestBody @Valid RegisterDTO registerDTO){

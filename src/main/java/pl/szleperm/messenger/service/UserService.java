@@ -1,16 +1,10 @@
 package pl.szleperm.messenger.service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import pl.szleperm.messenger.domain.Role;
 import pl.szleperm.messenger.domain.User;
 import pl.szleperm.messenger.repository.RoleRepository;
@@ -18,6 +12,11 @@ import pl.szleperm.messenger.repository.UserRepository;
 import pl.szleperm.messenger.web.DTO.PasswordDTO;
 import pl.szleperm.messenger.web.DTO.RegisterDTO;
 import pl.szleperm.messenger.web.DTO.UserDTO;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {

@@ -1,6 +1,6 @@
 package pl.szleperm.messenger.testutils
 
-public class Constants {
+class Constants {
 	public static final String USERNAME = "test_user"
 	public static final String OTHER_USERNAME = "other_user"
 	public static final String PASSWORD = "password"

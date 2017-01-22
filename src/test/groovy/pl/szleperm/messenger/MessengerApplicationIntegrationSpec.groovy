@@ -3,7 +3,6 @@ package pl.szleperm.messenger
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.web.context.WebApplicationContext
-
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -14,7 +13,7 @@ class MessengerApplicationIntegrationSpec extends Specification{
 	WebApplicationContext context
 	
 	@Unroll
-	def "should boot up with bean #bean"() {
+    "should boot up with bean #bean"() {
 		expect: "web application context exists and contains beans"
 			context != null
 			context.containsBean(bean)

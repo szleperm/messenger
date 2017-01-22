@@ -4,16 +4,13 @@ import org.springframework.data.domain.AuditorAware
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
-
 import spock.lang.Specification
 import spock.lang.Unroll
-import spock.util.mop.ConfineMetaClassChanges
-
 
 class SpringSecurityAuditorAwareSpec extends Specification{
 
 	@Unroll
-	def "should return '#auditor'"() {
+    "should return '#auditor'"() {
 		setup:
 		AuditorAware auditorAware = new SpringSecurityAuditorAware()
 		SecurityContext context = Stub(SecurityContext)

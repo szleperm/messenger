@@ -1,12 +1,6 @@
 package pl.szleperm.messenger
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
-
-import java.util.stream.Collectors
-
+import groovy.json.JsonSlurper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -18,10 +12,14 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.context.WebApplicationContext
-
-import groovy.json.JsonSlurper
-import pl.szleperm.messenger.domain.User
 import spock.lang.Specification
+
+import java.util.stream.Collectors
+
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -66,7 +64,7 @@ class UserResourceIntegrationSpec extends Specification{
 			(content["roles"] as List).contains("ROLE_USER")
 	}
 	@WithMockUser(username="admin", password="admin",roles=["ADMIN"])
-	def "should delete user when user is admin"(){
+    "should delete user when user is admin"(){
 		when:
 			MockHttpServletResponse response = mvc.perform(delete("/users/1").with(csrf().asHeader())).andReturn().getResponse()
 			def content = json.parseText(response.contentAsString) as Map
@@ -75,14 +73,14 @@ class UserResourceIntegrationSpec extends Specification{
 			content.containsKey("message")
 	}
 	@WithMockUser(username="admin", password="admin",roles=["ADMIN"])
-	def "should not delete user when doesn't exist"(){
+    "should not delete user when doesn't exist"(){
 		when:
 			MockHttpServletResponse response = mvc.perform(delete("/users/999").with(csrf().asHeader())).andReturn().getResponse()
 		then:
 			response.status == HttpStatus.NOT_FOUND.value
 	}
 	@WithMockUser(username="user", password="user",roles=["USER"])
-	def "should not delete user when user is not admin"(){
+    "should not delete user when user is not admin"(){
 		when:
 			MockHttpServletResponse response = mvc.perform(delete("/users/2").with(csrf().asHeader())).andReturn().getResponse()
 		then:

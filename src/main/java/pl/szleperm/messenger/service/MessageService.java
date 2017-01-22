@@ -1,18 +1,17 @@
 package pl.szleperm.messenger.service;
 
-import java.util.List;
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import pl.szleperm.messenger.domain.Message;
 import pl.szleperm.messenger.domain.projection.MessageSimplifiedProjection;
 import pl.szleperm.messenger.repository.MessageRepository;
 import pl.szleperm.messenger.repository.UserRepository;
 import pl.szleperm.messenger.web.DTO.MessageDTO;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class MessageService {
@@ -38,7 +37,7 @@ public class MessageService {
 	public void create(MessageDTO messageDTO) {
 		Message message = messageRepository.save(new Message(messageDTO));
 		userRepository.findByUsername(message.getAuthor())
-						.ifPresent(u -> message.setUser(u));
+						.ifPresent(message::setUser);
 		
 	}
 	@Transactional(readOnly=true)

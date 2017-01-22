@@ -1,14 +1,8 @@
 package pl.szleperm.messenger
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
-
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.json.BasicJsonParser
-import org.springframework.boot.test.autoconfigure.json.AutoConfigureJson
-import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
@@ -21,10 +15,13 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.context.WebApplicationContext
-
-import groovy.json.JsonOutput
-import groovy.json.JsonSlurper
 import spock.lang.Specification
+
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -43,12 +40,12 @@ class AccountResourceIntegrationSpec extends Specification{
 				.build()
 	}
 	@WithAnonymousUser
-	def "should redirect when user is anonymous"(){
+    "should redirect when user is anonymous"(){
 		expect:
 			mvc.perform(get("/me")).andExpect(status().is3xxRedirection())
 	}
 	@WithMockUser(username="user", password="user")
-	def "should get account data"(){
+    "should get account data"(){
 		when:
 			MockHttpServletResponse response = mvc.perform(get("/me")).andReturn().getResponse()
 			def content = json.parseText(response.contentAsString) as Map
@@ -61,7 +58,7 @@ class AccountResourceIntegrationSpec extends Specification{
 			(content["roles"] as List).contains("ROLE_USER")
 	}
 	@WithAnonymousUser
-	def "should return remote validation response"(){
+    "should return remote validation response"(){
 		given: "prepare json request with username: 'user' and email 'user@user'"
 			def requestBody = JsonOutput.toJson([username: "user", email: "user@user"])
 		when: 
@@ -74,11 +71,11 @@ class AccountResourceIntegrationSpec extends Specification{
 		then:
 			response.status == HttpStatus.OK.value
 			content.size() == 2
-			content["username"] as boolean == false
-			content["email"] as boolean == false
+			content["username"] as String == "false"
+			content["email"] as String == "false"
 	}
 	@WithMockUser(username="user", password="user")
-	def "should change password"(){
+    "should change password"(){
 		given:
 			def requestBody = JsonOutput.toJson([username: "user",
 											oldPassword: "user", 
@@ -95,7 +92,7 @@ class AccountResourceIntegrationSpec extends Specification{
 			response.status == HttpStatus.OK.value
 	}
 	@WithAnonymousUser
-	def "should not change password when user is anonymous"(){
+    "should not change password when user is anonymous"(){
 		given:
 			def requestBody = JsonOutput.toJson([username: "user",
 											oldPassword: "user",
@@ -111,7 +108,7 @@ class AccountResourceIntegrationSpec extends Specification{
 			response.status == HttpStatus.FOUND.value
 	}
 	@WithMockUser(username="admin", password="admin")
-	def "should not change password when other user is authorized"(){
+    "should not change password when other user is authorized"(){
 		given:
 			def requestBody = JsonOutput.toJson([username: "user",
 											oldPassword: "user",
@@ -127,7 +124,7 @@ class AccountResourceIntegrationSpec extends Specification{
 			response.status == HttpStatus.FORBIDDEN.value
 	}
 	@WithAnonymousUser
-	def "should register user"(){
+    "should register user"(){
 		given:
 			def requestBody = JsonOutput.toJson([username: "new_user",
 											email: "email@email",
@@ -143,7 +140,7 @@ class AccountResourceIntegrationSpec extends Specification{
 			response.status == HttpStatus.OK.value
 	}
 	@WithAnonymousUser
-	def "should not register user when username already in use"(){
+    "should not register user when username already in use"(){
 		given:
 			def requestBody = JsonOutput.toJson([username: "user",
 											email: "email@email",

@@ -1,10 +1,7 @@
 package pl.szleperm.messenger.web.validator
 
-import static pl.szleperm.messenger.testutils.Constants.*
-
 import org.springframework.validation.BindException
 import org.springframework.validation.Errors
-
 import pl.szleperm.messenger.domain.Role
 import pl.szleperm.messenger.domain.User
 import pl.szleperm.messenger.service.UserService
@@ -12,19 +9,20 @@ import pl.szleperm.messenger.web.DTO.UserDTO
 import spock.lang.Specification
 import spock.lang.Unroll
 
+import static pl.szleperm.messenger.testutils.Constants.*
 
 class UserDTOValidatorSpec extends Specification{
 
 	UserDTOValidator validator
 	UserDTO userDTO
 	@Unroll
-	def '''should add #errorCount error(s) when 'name' is #name.toUpperCase()
+    '''should add #errorCount error(s) when 'name' is #name.toUpperCase()
 		'email' is #email.toUpperCase() and
 		'role' is #role.toUpperCase()'''(){
 		setup:
-			User validUser = new User();
+			User validUser = new User()
 			validUser.setId(VALID_ID)
-			User notValidUser = new User();
+			User notValidUser = new User()
 			notValidUser.setId(OTHER_ID)
 			UserService userService = Stub(UserService){
 				findById(VALID_ID) >> Optional.ofNullable(validUser)

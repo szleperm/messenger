@@ -1,15 +1,14 @@
 package pl.szleperm.messenger.repository
 
-import java.util.stream.Collectors
-
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
-
 import pl.szleperm.messenger.domain.Message
 import pl.szleperm.messenger.domain.projection.MessageSimplifiedProjection
 import pl.szleperm.messenger.testutils.Constants
 import spock.lang.Specification
+
+import java.util.stream.Collectors
 
 @DataJpaTest
 class MessageRepositorySpec extends Specification{

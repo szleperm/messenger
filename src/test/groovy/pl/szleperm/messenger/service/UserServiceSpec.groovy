@@ -1,7 +1,6 @@
 package pl.szleperm.messenger.service
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
-
 import pl.szleperm.messenger.domain.Role
 import pl.szleperm.messenger.domain.User
 import pl.szleperm.messenger.repository.RoleRepository
@@ -68,7 +67,7 @@ class UserServiceSpec extends Specification{
 			1 * userRepository.findById(Constants.ID) >> Optional.of(user)
 	}
 	@Unroll
-	def "should call repository and #not change password"(){
+    "should call repository and #not change password"(){
 		setup:
 			BCryptPasswordEncoder encoder = new BCryptPasswordEncoder()
 			PasswordDTO passwordDTO = new PasswordDTO()
@@ -91,7 +90,7 @@ class UserServiceSpec extends Specification{
 			1 * userRepository.findAll()
 	}
 	@Unroll
-	def "should call repositories and #not update user"(){
+    "should call repositories and #not update user"(){
 		setup:
 			UserDTO userDTO = new UserDTO(user)
 		when:

@@ -5,7 +5,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-
 import pl.szleperm.messenger.service.UserService;
 import pl.szleperm.messenger.web.DTO.PasswordDTO;
 

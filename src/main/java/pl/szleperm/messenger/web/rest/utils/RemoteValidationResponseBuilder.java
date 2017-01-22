@@ -19,7 +19,7 @@ public class RemoteValidationResponseBuilder {
 							.ofNullable(request.get(entry.getKey()))
 							.isPresent())
 			.collect(Collectors
-						.toMap(e -> e.getKey(),
+						.toMap(Map.Entry::getKey,
 								e -> e.getValue().test(request.get(e.getKey()))));			
 	}
 	public RemoteValidationResponseBuilder addValidationRule(String field, Predicate<String> validationPredicate){

@@ -3,7 +3,6 @@ package pl.szleperm.messenger.repository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
-
 import pl.szleperm.messenger.domain.Role
 import pl.szleperm.messenger.testutils.Constants
 import spock.lang.Specification

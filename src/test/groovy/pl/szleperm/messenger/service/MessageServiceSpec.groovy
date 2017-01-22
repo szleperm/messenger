@@ -53,7 +53,7 @@ class MessageServiceSpec extends Specification{
 			1 * messageRepository.findAll()
 	}
 	@Unroll
-	def "should call repository and #not save message"(){
+    "should call repository and #not save message"(){
 		when:
 			service.save(messageDTO)
 		then:

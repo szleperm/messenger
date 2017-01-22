@@ -1,18 +1,17 @@
 package pl.szleperm.messenger.web.rest
 
-import static pl.szleperm.messenger.testutils.Constants.*
-
-import java.security.Principal
-
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.AccessDeniedException
-
 import pl.szleperm.messenger.domain.Role
 import pl.szleperm.messenger.domain.User
 import pl.szleperm.messenger.service.UserService
 import pl.szleperm.messenger.web.DTO.UserDTO
 import pl.szleperm.messenger.web.validator.UserDTOValidator
 import spock.lang.Specification
+
+import java.security.Principal
+
+import static pl.szleperm.messenger.testutils.Constants.*
 
 class UserResourceSpec extends Specification{
 	UserService userService
@@ -55,7 +54,7 @@ class UserResourceSpec extends Specification{
 			response.body.name == VALID_USERNAME
 			response.body.email == VALID_EMAIL
 	}
-	def "shoud delete user"(){
+	def "should delete user"(){
 		when:
 			def response = resource.deleteUser(VALID_ID)
 		then:
@@ -67,7 +66,7 @@ class UserResourceSpec extends Specification{
 		when:
 			def response = resource.deleteUser(NOT_VALID_ID)
 		then:
-			0 * userService.delete(_)
+			0 * userService.delete(_ as Long)
 			response.statusCode == HttpStatus.NOT_FOUND
 			response.body == null
 	}
@@ -91,7 +90,7 @@ class UserResourceSpec extends Specification{
 				getName() >> VALID_USERNAME
 			}
 		when:
-			def response = resource.updateUser(userDTO, VALID_ID, principal)
+			resource.updateUser(userDTO, VALID_ID, principal)
 		then:
 			0 * userService.update(userDTO)
 			thrown(AccessDeniedException)

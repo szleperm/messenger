@@ -1,19 +1,17 @@
 package pl.szleperm.messenger.web.DTO;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.validation.constraints.NotNull;
-
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.hibernate.validator.constraints.Range;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-
+import pl.szleperm.messenger.domain.Role;
 import pl.szleperm.messenger.domain.User;
+
+import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 @JsonInclude(Include.NON_NULL)
 public class UserDTO {
 	@NotNull
@@ -32,7 +30,7 @@ public class UserDTO {
 		this.name = user.getUsername();
 		this.email = user.getEmail();
 		this.roles = user.getRoles().stream()
-						.map(r -> r.getName())
+						.map(Role::getName)
 						.collect(Collectors.toList());
 	}
 	public UserDTO(Long id, String name, String email, List<String> roles) {

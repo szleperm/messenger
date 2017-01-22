@@ -6,7 +6,6 @@ import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.test.context.support.WithAnonymousUser
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.util.ReflectionTestUtils
-
 import pl.szleperm.messenger.domain.Message
 import pl.szleperm.messenger.domain.Role
 import pl.szleperm.messenger.domain.User
@@ -18,7 +17,6 @@ import pl.szleperm.messenger.web.DTO.MessageDTO
 import pl.szleperm.messenger.web.DTO.PasswordDTO
 import pl.szleperm.messenger.web.DTO.UserDTO
 import spock.lang.Specification
-
 
 @SpringBootTest
 class ServiceMethodSecuritySpec extends Specification{
@@ -57,7 +55,7 @@ class ServiceMethodSecuritySpec extends Specification{
 		messageDTO = new MessageDTO(message)
 	}
 	@WithMockUser(username=Constants.USERNAME)
-	def "should change password when username match"(){
+    "should change password when username match"(){
 		setup:
 			PasswordDTO passwordDTO = new PasswordDTO()
 			passwordDTO.setUsername(Constants.USERNAME)
@@ -70,7 +68,7 @@ class ServiceMethodSecuritySpec extends Specification{
 		
 	}
 	@WithMockUser(username=Constants.OTHER_USERNAME, roles=Constants.ADMIN)
-	def "should not change password when username doesn't match"(){
+    "should not change password when username doesn't match"(){
 		when:
 			userService.changePassword(new PasswordDTO())
 		then:
@@ -80,7 +78,7 @@ class ServiceMethodSecuritySpec extends Specification{
 		
 	}
 	@WithAnonymousUser
-	def "should not change password when is anonymous"(){
+    "should not change password when is anonymous"(){
 		when:
 			userService.changePassword(new PasswordDTO())
 		then:
@@ -90,7 +88,7 @@ class ServiceMethodSecuritySpec extends Specification{
 		
 	}
 	@WithMockUser(roles=Constants.ADMIN)
-	def "should update user when has role ADMIN"(){
+    "should update user when has role ADMIN"(){
 		setup:
 			UserDTO userDTO = new UserDTO(user)
 		when:
@@ -101,7 +99,7 @@ class ServiceMethodSecuritySpec extends Specification{
 			1 * userRepository.save(_) 
 	}
 	@WithMockUser(roles=Constants.USER)
-	def "should not update user when hasn't role ADMIN"(){
+    "should not update user when hasn't role ADMIN"(){
 		setup:
 			UserDTO userDTO = new UserDTO(user)
 		when:
@@ -113,7 +111,7 @@ class ServiceMethodSecuritySpec extends Specification{
 			0 * userRepository.save(_)
 	}
 	@WithAnonymousUser
-	def "should not update user when is anonymous"(){
+    "should not update user when is anonymous"(){
 		setup:
 			UserDTO userDTO = new UserDTO(user)
 		when:
@@ -125,14 +123,14 @@ class ServiceMethodSecuritySpec extends Specification{
 			0 * userRepository.save(_)
 	}
 	@WithMockUser(roles=Constants.ADMIN)
-	def "should delete user when has role ADMIN"(){
+    "should delete user when has role ADMIN"(){
 		when:
 			userService.delete(Constants.ID)
 		then:
 			1 * userRepository.delete(Constants.ID)
 	}
 	@WithMockUser(roles=Constants.USER)
-	def "should not delete user when hasn't role ADMIN"(){
+    "should not delete user when hasn't role ADMIN"(){
 		when:
 			userService.delete(Constants.ID)
 		then:
@@ -140,7 +138,7 @@ class ServiceMethodSecuritySpec extends Specification{
 			0 * userRepository.delete(_)
 	}
 	@WithAnonymousUser
-	def "should not delete user when anonymous"(){
+    "should not delete user when anonymous"(){
 		when:
 			userService.delete(Constants.ID)
 		then:
@@ -148,7 +146,7 @@ class ServiceMethodSecuritySpec extends Specification{
 			0 * userRepository.delete(_)
 	}
 	@WithMockUser(username=Constants.USERNAME, roles=Constants.USER)
-	def "should update message when is author"(){
+    "should update message when is author"(){
 		when:
 			messageService.save(messageDTO)
 		then:
@@ -156,7 +154,7 @@ class ServiceMethodSecuritySpec extends Specification{
 			1 * messageRepository.save(message)
 	}
 	@WithMockUser(username=Constants.OTHER_USERNAME, roles=Constants.ADMIN)
-	def "should update message when is ADMIN"(){
+    "should update message when is ADMIN"(){
 		when:
 			messageService.save(messageDTO)
 		then:
@@ -164,7 +162,7 @@ class ServiceMethodSecuritySpec extends Specification{
 			1 * messageRepository.save(message)
 	}
 	@WithMockUser(username=Constants.OTHER_USERNAME, roles=Constants.USER)
-	def "should not update message when isn't author and ADMIN"(){
+    "should not update message when isn't author and ADMIN"(){
 		when:
 			messageService.save(messageDTO)
 		then:
@@ -173,7 +171,7 @@ class ServiceMethodSecuritySpec extends Specification{
 			0 * messageRepository.save(_)
 	}
 	@WithAnonymousUser
-	def "should not update message when is anonymous"(){
+    "should not update message when is anonymous"(){
 		when:
 			messageService.save(messageDTO)
 		then:
@@ -182,7 +180,7 @@ class ServiceMethodSecuritySpec extends Specification{
 			0 * messageRepository.save(_)
 	}
 	@WithMockUser
-	def "should create message when is authenticated"(){
+    "should create message when is authenticated"(){
 		when:
 			messageService.create(messageDTO)
 		then:
@@ -190,7 +188,7 @@ class ServiceMethodSecuritySpec extends Specification{
 			1 * userRepository.findByUsername(Constants.USERNAME) >> Optional.ofNullable(null)
 	}
 	@WithAnonymousUser
-	def "should not create message when is anonymous"(){
+    "should not create message when is anonymous"(){
 		when:
 			messageService.create(messageDTO)
 		then:

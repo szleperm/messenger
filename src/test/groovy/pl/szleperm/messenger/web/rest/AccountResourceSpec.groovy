@@ -1,11 +1,6 @@
 package pl.szleperm.messenger.web.rest
 
-import static pl.szleperm.messenger.testutils.Constants.*
-
-import java.security.Principal
-
 import org.springframework.http.HttpStatus
-
 import pl.szleperm.messenger.domain.Role
 import pl.szleperm.messenger.domain.User
 import pl.szleperm.messenger.service.UserService
@@ -15,6 +10,10 @@ import pl.szleperm.messenger.web.DTO.UserDTO
 import pl.szleperm.messenger.web.validator.PasswordDTOValidator
 import pl.szleperm.messenger.web.validator.RegisterDTOValidator
 import spock.lang.Specification
+
+import java.security.Principal
+
+import static pl.szleperm.messenger.testutils.Constants.*
 
 class AccountResourceSpec extends Specification{
 	UserService userService
@@ -73,4 +72,15 @@ class AccountResourceSpec extends Specification{
 			response.statusCode == HttpStatus.NOT_FOUND
 			response.body == null
 	}
+	def "should return validation response"(){
+        given:
+            def request = [username: VALID_USERNAME, email: NOT_VALID_EMAIL]
+        when:
+            def response = resource.checkUsernameAndEmail(request)
+        then:
+            1 * userService.findUserByName(VALID_USERNAME) >> Optional.ofNullable(null)
+            1 * userService.findUserByEmail(NOT_VALID_EMAIL) >> Optional.of(user)
+            response["username"] as String== "true"
+            response["email"] as String == "false"
 }
+    }

@@ -1,15 +1,13 @@
 package pl.szleperm.messenger.web.DTO;
 
-import java.time.LocalDateTime;
-
-import org.hibernate.validator.constraints.NotEmpty;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-
+import org.hibernate.validator.constraints.NotEmpty;
 import pl.szleperm.messenger.domain.Message;
 import pl.szleperm.messenger.domain.projection.MessageSimplifiedProjection;
+
+import java.time.LocalDateTime;
 @JsonInclude(Include.NON_NULL)
 public class MessageDTO {
 	private Long id;

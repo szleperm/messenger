@@ -1,15 +1,14 @@
 package pl.szleperm.messenger.web.validator;
 
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-
 import pl.szleperm.messenger.domain.User;
 import pl.szleperm.messenger.service.UserService;
 import pl.szleperm.messenger.web.DTO.UserDTO;
+
+import java.util.Optional;
 
 @Component
 public class UserDTOValidator implements Validator{
@@ -33,7 +32,7 @@ public class UserDTOValidator implements Validator{
 		validateRoles(errors, userDTO);
 	}
 	private void validateRoles(Errors errors, UserDTO userDTO) {
-		userDTO.getRoles().stream()
+		userDTO.getRoles()
 			.forEach(r -> {
 					if(!userService.findRoleByName(r).isPresent()){
 						errors

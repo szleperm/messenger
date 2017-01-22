@@ -15,10 +15,14 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 @Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter{
 	
-	@Autowired
-	protected UserDetailsService userDetailsService;
-	
-	@Autowired
+	protected final UserDetailsService userDetailsService;
+
+    @Autowired
+    public SecurityConfiguration(UserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
+    }
+
+    @Autowired
 	protected void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 		auth
 			.userDetailsService(userDetailsService)

@@ -1,30 +1,20 @@
 package pl.szleperm.messenger.web.rest;
 
-import java.security.Principal;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 import pl.szleperm.messenger.domain.User;
 import pl.szleperm.messenger.service.UserService;
 import pl.szleperm.messenger.web.DTO.UserDTO;
 import pl.szleperm.messenger.web.validator.UserDTOValidator;
+
+import javax.validation.Valid;
+import java.security.Principal;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")
@@ -43,7 +33,7 @@ public class UserResource {
 	@RequestMapping(method=RequestMethod.GET)
 	public ResponseEntity<List<UserDTO>> getAll(){
 		 List<UserDTO> result = userService.findAll().stream()
-					.map(u -> new UserDTO(u))
+					.map(UserDTO::new)
 					.collect(Collectors.toList());
 		 return ResponseEntity.ok(result);
 	}
@@ -51,7 +41,7 @@ public class UserResource {
 	public ResponseEntity<UserDTO> getUser(@PathVariable Long id) {
 		return userService.findById(id)
 					.map(u -> ResponseEntity.ok(new UserDTO(u)))
-					.orElse(new ResponseEntity<UserDTO>(HttpStatus.NOT_FOUND));
+					.orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
 	}
 	@RequestMapping(value="/{id}", method=RequestMethod.DELETE)
 	public ResponseEntity<?> deleteUser(@PathVariable Long id) {
@@ -68,7 +58,7 @@ public class UserResource {
 		if(!(id == userDTO.getId())) {
 			return new ResponseEntity<Map<String, String>>(HttpStatus.CONFLICT);
 		}else if(userService.findById(id)
-							.map(u -> (u.getUsername() == principal.getName()))
+							.map(u -> (Objects.equals(u.getUsername(), principal.getName())))
 							.get()) throw new AccessDeniedException("not allowed to update current user");
 		userService.update(userDTO);
 		return ResponseEntity.ok(userDTO);

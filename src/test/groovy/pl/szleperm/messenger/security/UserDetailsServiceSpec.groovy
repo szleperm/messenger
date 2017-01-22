@@ -3,13 +3,11 @@ package pl.szleperm.messenger.security
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
-
 import pl.szleperm.messenger.domain.Role
 import pl.szleperm.messenger.domain.User
 import pl.szleperm.messenger.repository.UserRepository
 import pl.szleperm.messenger.testutils.Constants
 import spock.lang.Specification
-
 
 class UserDetailsServiceSpec extends Specification{
 
