@@ -29,6 +29,10 @@ local.properties
 .loadpath
 .recommenders
 
+#IntelliJ IDEA
+.idea
+/*.iml
+
 # Eclipse Core
 .project
 
