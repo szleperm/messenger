@@ -8,15 +8,15 @@ import pl.szleperm.messenger.domain.Message;
 import pl.szleperm.messenger.domain.projection.MessageSimplifiedProjection;
 import pl.szleperm.messenger.repository.MessageRepository;
 import pl.szleperm.messenger.repository.UserRepository;
-import pl.szleperm.messenger.web.DTO.MessageDTO;
+import pl.szleperm.messenger.web.vm.MessageFormVM;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class MessageService {
-	protected MessageRepository messageRepository;
-	protected UserRepository userRepository;
+	private final MessageRepository messageRepository;
+	private final UserRepository userRepository;
 	
 	@Autowired
 	public MessageService(MessageRepository messageRepository, UserRepository userRepository) {
@@ -34,26 +34,20 @@ public class MessageService {
 	}
 	@Transactional
 	@PreAuthorize("isAuthenticated()")
-	public void create(MessageDTO messageDTO) {
-		Message message = messageRepository.save(new Message(messageDTO));
+	public void create(MessageFormVM messageForm) {
+		Message message = messageRepository
+                .save(new Message(messageForm.getTitle(), messageForm.getContent()));
 		userRepository.findByUsername(message.getAuthor())
-						.ifPresent(message::setUser);
-		
+						.ifPresent(user -> user.getMessages().add(message));
+		messageRepository.save(message);
 	}
 	@Transactional(readOnly=true)
 	public List<Message> getAll() {
 		return messageRepository.findAll();
 	}
 	@Transactional
-	@PreAuthorize("hasRole('ADMIN') || #messageDTO.author == authentication.name")
-	public void save(MessageDTO messageDTO) {
-		Optional<Message> message = messageRepository.findById(messageDTO.getId());
-		if(message.isPresent()){
-			messageRepository.save(message.map(m -> {
-										m.setContent(messageDTO.getContent());
-										m.setTitle(messageDTO.getTitle());
-										return m;
-									}).get());
-		}
+	@PreAuthorize("hasRole('ADMIN') || #message.author == authentication.name")
+	public void update(Message message) {
+		messageRepository.save(message);
 	}
 }

@@ -4,16 +4,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pl.szleperm.messenger.domain.Message;
+import pl.szleperm.messenger.domain.projection.MessageSimplifiedProjection;
 import pl.szleperm.messenger.service.MessageService;
-import pl.szleperm.messenger.web.DTO.MessageDTO;
+import pl.szleperm.messenger.web.vm.ManagedMessageVM;
+import pl.szleperm.messenger.web.vm.MessageFormVM;
 
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/messages")
+@RequestMapping("/api/messages")
 public class MessageResource {
 	private final MessageService messageService;
 
@@ -22,33 +24,36 @@ public class MessageResource {
 		this.messageService = messageService;
 	}
 
-	@RequestMapping(method = RequestMethod.GET)
-	public ResponseEntity<List<MessageDTO>> getAll() {
-		return ResponseEntity.ok(messageService.getAllSimplified().stream()
-										.map(MessageDTO::new)
-										.collect(Collectors.toList()));
+	@GetMapping
+	public ResponseEntity<List<MessageSimplifiedProjection>> getAll() {
+		return ResponseEntity.ok(messageService.getAllSimplified());
 	}
-	@RequestMapping(value = "/{id}", method=RequestMethod.GET)
-	public ResponseEntity<MessageDTO> getMessage(@PathVariable long id) {
+	@GetMapping(value = "/{id}")
+	public ResponseEntity<ManagedMessageVM> getMessage(@PathVariable long id) {
 		return messageService.findById(id)
-					.map(m -> ResponseEntity.ok(new MessageDTO(m)))
+                    .map(ManagedMessageVM::new)
+					.map(ResponseEntity::ok)
 					.orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
 	}
-	@RequestMapping(method=RequestMethod.POST)
-	public ResponseEntity<?> createMessage(@RequestBody @Valid MessageDTO message){
+	@PostMapping
+	public ResponseEntity<?> createMessage(@RequestBody @Valid MessageFormVM message){
 		messageService.create(message);
-		return ResponseEntity.ok(message);
+		return ResponseEntity.ok().build(); //TODO change to created
 	}
-	@RequestMapping(value = "/{id}", method=RequestMethod.PUT)
-	public ResponseEntity<MessageDTO> updateMessage(@PathVariable long id, @RequestBody @Valid MessageDTO messageDTO){
-        ResponseEntity<MessageDTO> responseEntity = messageService.findById(id)
+	@PutMapping(value = "/{id}")
+	public ResponseEntity<ManagedMessageVM> updateMessage(@PathVariable long id, @RequestBody @Valid MessageFormVM messageForm){
+        Optional<Message> message= messageService.findById(id)
                 .map(m -> {
-                    messageDTO.setId(id);
-                    messageDTO.setAuthor(m.getAuthor());
-                    return ResponseEntity.ok(messageDTO);})
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
-        Optional.ofNullable(responseEntity.getBody())
-                .ifPresent(messageService::save);
-        return responseEntity;
+                   m.setContent(messageForm.getContent());
+                   m.setTitle(messageForm.getTitle());
+                   return m;});
+        message.ifPresent(messageService::update);
+        return message.map(ManagedMessageVM::new)
+				.map(ResponseEntity::ok)
+				.orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
 	}
+	@DeleteMapping(value = "/{id}")
+    public ResponseEntity<?> deleteMessage(@PathVariable long id){
+	    return null; //TODO
+    }
 }

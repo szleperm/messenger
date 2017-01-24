@@ -23,5 +23,9 @@ class Constants {
 	public static final String NOT_VALID_ROLE = "not valid"
 	public static final String VALID_EMAIL = "valid"
 	public static final String NOT_VALID_EMAIL = "not valid"
-	
+	public static final String NOT_UNIQUE_EMAIL = "not unique"
+	public static final String UNIQUE_EMAIL = "unique"
+	public static final String MATCH = "match"
+	public static final String NOT_MATCH = "not match"
+
 	}

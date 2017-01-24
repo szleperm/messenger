@@ -4,16 +4,16 @@ import org.springframework.validation.BindException
 import org.springframework.validation.Errors
 import pl.szleperm.messenger.domain.User
 import pl.szleperm.messenger.service.UserService
-import pl.szleperm.messenger.web.DTO.RegisterDTO
+import pl.szleperm.messenger.web.vm.RegisterFormVM
 import spock.lang.Specification
 import spock.lang.Unroll
 
 import static pl.szleperm.messenger.testutils.Constants.*
 
-class RegisterDTOValidatorSpec extends Specification{
+class RegisterFormValidatorSpec extends Specification{
 
-	RegisterDTOValidator validator
-	RegisterDTO registerDTO
+	RegisterFormValidator validator
+	RegisterFormVM registerDTO
 	@Unroll
 	'''should add #errorCount error(s) when 'username' is #username.toUpperCase()
 		'email' is #email.toUpperCase() and
@@ -26,9 +26,9 @@ class RegisterDTOValidatorSpec extends Specification{
 				findUserByEmail(VALID_EMAIL) >> Optional.ofNullable(null)
 				findUserByEmail(NOT_VALID_EMAIL) >> Optional.ofNullable(user)
 			}
-			validator = new RegisterDTOValidator(userService)
-			registerDTO = new RegisterDTO(username, email, VALID_PASSWORD, confirmPassword)
-			Errors result = new BindException(registerDTO, "RegisterDTO")
+			validator = new RegisterFormValidator(userService)
+			registerDTO = new RegisterFormVM(username, email, VALID_PASSWORD, confirmPassword)
+			Errors result = new BindException(registerDTO, "RegisterFormVM")
 		when: 
 			validator.validate(registerDTO, result)
 		then:

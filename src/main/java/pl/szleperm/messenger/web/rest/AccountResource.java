@@ -6,48 +6,50 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import pl.szleperm.messenger.service.UserService;
-import pl.szleperm.messenger.web.DTO.PasswordDTO;
-import pl.szleperm.messenger.web.DTO.RegisterDTO;
-import pl.szleperm.messenger.web.DTO.UserDTO;
 import pl.szleperm.messenger.web.rest.utils.RemoteValidationResponseBuilder;
-import pl.szleperm.messenger.web.validator.PasswordDTOValidator;
-import pl.szleperm.messenger.web.validator.RegisterDTOValidator;
+import pl.szleperm.messenger.web.validator.ChangePasswordFormValidator;
+import pl.szleperm.messenger.web.validator.RegisterFormValidator;
+import pl.szleperm.messenger.web.vm.ChangePasswordFormVM;
+import pl.szleperm.messenger.web.vm.ManagedUserVM;
+import pl.szleperm.messenger.web.vm.RegisterFormVM;
 
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.Map;
 
 @RestController
+@RequestMapping("/api")
 public class AccountResource {
 	private final UserService userService;
-	private final RegisterDTOValidator registerDTOValidator;
-	private final PasswordDTOValidator passwordDTOValidator;
+	private final RegisterFormValidator registerFormValidator;
+	private final ChangePasswordFormValidator changePasswordFormValidator;
 	
 	@Autowired
-	public AccountResource(UserService userService, RegisterDTOValidator registerDTOValidator, PasswordDTOValidator passwordDTOValidator) {
+	public AccountResource(UserService userService, RegisterFormValidator registerFormValidator, ChangePasswordFormValidator changePasswordFormValidator) {
 		this.userService = userService;
-		this.registerDTOValidator = registerDTOValidator;
-		this.passwordDTOValidator = passwordDTOValidator;
+		this.registerFormValidator = registerFormValidator;
+		this.changePasswordFormValidator = changePasswordFormValidator;
 	}
 
-	@InitBinder(value="registerDTO")
-	public void initBinder(WebDataBinder binder){
-		binder.addValidators(registerDTOValidator);
+	@InitBinder(value="registerFormVM")
+	public void registerFormBinder(WebDataBinder binder){
+		binder.addValidators(registerFormValidator);
 	}
-	@InitBinder(value="passwordDTO")
-	public void passwordBinder(WebDataBinder binder){
-		binder.addValidators(passwordDTOValidator);
+	@InitBinder(value="changePasswordFormVM")
+	public void passwordFormBinder(WebDataBinder binder){
+		binder.addValidators(changePasswordFormValidator);
 	}
 	
-	@RequestMapping("/me")
-	public ResponseEntity<?> userDetails(Principal principal){
+	@RequestMapping(value = "/account", method = RequestMethod.GET)
+	public ResponseEntity<ManagedUserVM> userDetails(Principal principal){
 		return userService.findUserByName(principal.getName())
-					.map(u -> ResponseEntity.ok(new UserDTO(u)))
+					.map(ManagedUserVM::new)
+					.map(ResponseEntity::ok)
 					.orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
 	}
 	@RequestMapping(value="/register", method = RequestMethod.POST)
-	public ResponseEntity<?> register(@RequestBody @Valid RegisterDTO registerDTO){
-		userService.create(registerDTO);
+	public ResponseEntity<?> register(@RequestBody @Valid RegisterFormVM registerFormVM){
+		userService.create(registerFormVM);
 		return ResponseEntity.ok().build();
 	}
 	@RequestMapping(value="/register/available", method=RequestMethod.POST)
@@ -57,9 +59,9 @@ public class AccountResource {
 					.addValidationRule("email", email -> !userService.findUserByEmail(email).isPresent())
 					.build();
 	}
-	@RequestMapping(value="/change_password", method=RequestMethod.POST)
-	public ResponseEntity<?> changePassword(@RequestBody @Valid PasswordDTO passwordDTO) {
-		userService.changePassword(passwordDTO);
+	@RequestMapping(value="/account/change_password", method=RequestMethod.PATCH)
+	public ResponseEntity<?> changePassword(@RequestBody @Valid ChangePasswordFormVM changePasswordFormVM) {
+		userService.changePassword(changePasswordFormVM);
 		return ResponseEntity.ok().build();
 	}
 }

@@ -8,10 +8,10 @@ import spock.lang.Unroll
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class MessengerApplicationIntegrationSpec extends Specification{
-	
+
 	@Autowired
 	WebApplicationContext context
-	
+
 	@Unroll
     "should boot up with bean #bean"() {
 		expect: "web application context exists and contains beans"
@@ -31,9 +31,9 @@ class MessengerApplicationIntegrationSpec extends Specification{
 					"userRepository",
 					"roleRepository",
 					"globalExceptionHandler",
-					"passwordDTOValidator",
-					"registerDTOValidator",
-					"userDTOValidator"				
+					"changePasswordFormValidator",
+					"registerFormValidator",
+					"updateUserFormValidator"
 					]
 	}
 }

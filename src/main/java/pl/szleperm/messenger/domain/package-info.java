@@ -2,7 +2,7 @@
  * 
  */
 /**
- * @author szleperm
+ * @author Marcin Szleper
  *
  */
 package pl.szleperm.messenger.domain;

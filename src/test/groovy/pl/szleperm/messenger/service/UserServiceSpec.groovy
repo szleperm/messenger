@@ -6,9 +6,8 @@ import pl.szleperm.messenger.domain.User
 import pl.szleperm.messenger.repository.RoleRepository
 import pl.szleperm.messenger.repository.UserRepository
 import pl.szleperm.messenger.testutils.Constants
-import pl.szleperm.messenger.web.DTO.PasswordDTO
-import pl.szleperm.messenger.web.DTO.RegisterDTO
-import pl.szleperm.messenger.web.DTO.UserDTO
+import pl.szleperm.messenger.web.vm.ChangePasswordFormVM
+import pl.szleperm.messenger.web.vm.RegisterFormVM
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -41,7 +40,7 @@ class UserServiceSpec extends Specification{
 	}
 	def "should create user"(){
 		setup:
-			RegisterDTO registerDTO = new RegisterDTO()
+			RegisterFormVM registerDTO = new RegisterFormVM()
 			registerDTO.setUsername(Constants.USERNAME)
 			registerDTO.setEmail(Constants.EMAIL)
 			registerDTO.setPassword(Constants.PASSWORD)
@@ -70,7 +69,7 @@ class UserServiceSpec extends Specification{
     "should call repository and #not change password"(){
 		setup:
 			BCryptPasswordEncoder encoder = new BCryptPasswordEncoder()
-			PasswordDTO passwordDTO = new PasswordDTO()
+			ChangePasswordFormVM passwordDTO = new ChangePasswordFormVM()
 			passwordDTO.setUsername(Constants.USERNAME)
 			passwordDTO.setNewPassword(Constants.PASSWORD)
 		when:
@@ -87,24 +86,16 @@ class UserServiceSpec extends Specification{
 		when:
 			userService.findAll()
 		then:
-			1 * userRepository.findAll()
+			1 * userRepository.findAllProjectedBy()
 	}
 	@Unroll
-    "should call repositories and #not update user"(){
-		setup:
-			UserDTO userDTO = new UserDTO(user)
+    "should call repositories and update user"(){
 		when:
-			userService.update(userDTO)
+			userService.updateUser(user)
 		then:
-			1 * userRepository.findById(Constants.ID) >> Optional.ofNullable(result)
-			1 * roleRepository.findByName(role.getName()) >> Optional.of(role)
-			calls * userRepository.save({(it.username == Constants.USERNAME) &&		
+			1 * userRepository.save({(it.username == Constants.USERNAME) &&
 											(it.email == Constants.EMAIL)&&
 											(it.roles == user.roles)}) 
-		where:
-			result | not   || calls
-			null   | "not" || 0
-			user   |  ""   || 1
 	}
 	def "should delete user"(){
 		when:

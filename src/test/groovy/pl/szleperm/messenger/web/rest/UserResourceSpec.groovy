@@ -1,33 +1,36 @@
 package pl.szleperm.messenger.web.rest
 
 import org.springframework.http.HttpStatus
-import org.springframework.security.access.AccessDeniedException
 import pl.szleperm.messenger.domain.Role
 import pl.szleperm.messenger.domain.User
+import pl.szleperm.messenger.domain.projection.UserSimplifiedProjection
 import pl.szleperm.messenger.service.UserService
-import pl.szleperm.messenger.web.DTO.UserDTO
-import pl.szleperm.messenger.web.validator.UserDTOValidator
+import pl.szleperm.messenger.web.validator.UpdateUserFormValidator
+import pl.szleperm.messenger.web.vm.ManagedUserVM
+import pl.szleperm.messenger.web.vm.UpdateUserFormVM
 import spock.lang.Specification
-
-import java.security.Principal
 
 import static pl.szleperm.messenger.testutils.Constants.*
 
 class UserResourceSpec extends Specification{
 	UserService userService
 	UserResource resource
-	UserDTOValidator userDTOValidator
+	UpdateUserFormValidator userDTOValidator
 	def setup(){
 		def user = [id: VALID_ID,
 					username: VALID_USERNAME, 
 					email: VALID_EMAIL, 
 					roles: [[name: VALID_ROLE] as Role] ] as User
+        def projection = Stub(UserSimplifiedProjection){
+            getUsername() >> VALID_USERNAME
+            getEmail() >> VALID_EMAIL
+        }
 		userService = Mock(UserService){
-			findAll() >> [user]
+			findAll() >> [projection]
 			findById(VALID_ID) >> Optional.of(user)
 			findById(NOT_VALID_ID) >> Optional.ofNullable(null)
 		}
-		userDTOValidator = new UserDTOValidator(userService)
+		userDTOValidator = new UpdateUserFormValidator(userService)
 		resource = new UserResource(userService, userDTOValidator)
 	}
 	def "should return all users"(){
@@ -36,7 +39,7 @@ class UserResourceSpec extends Specification{
 		then:
 			response.statusCode == HttpStatus.OK
 			response.body.size() == 1
-			response.body.get(0).name == VALID_USERNAME
+			response.body.get(0).username == VALID_USERNAME
 			response.body.get(0).email == VALID_EMAIL
 	}
 	def "should not return user when doesn't exist"(){
@@ -59,8 +62,7 @@ class UserResourceSpec extends Specification{
 			def response = resource.deleteUser(VALID_ID)
 		then:
 			1 * userService.delete(VALID_ID)
-			response.statusCode == HttpStatus.OK
-			(response.body as Map).containsKey("message") 
+			response.statusCode == HttpStatus.NO_CONTENT
 	}
 	def "should not delete user when doesn't exist"(){
 		when:
@@ -68,44 +70,35 @@ class UserResourceSpec extends Specification{
 		then:
 			0 * userService.delete(_ as Long)
 			response.statusCode == HttpStatus.NOT_FOUND
-			response.body == null
 	}
 	def "should update user"(){
 		given:
-			def userDTO = [id: VALID_ID, name: VALID_USERNAME] as UserDTO
-			def principal = Stub(Principal){
-				getName() >> NOT_VALID_USERNAME
-			}
+			def updateForm = [email: VALID_EMAIL, id: VALID_ID] as UpdateUserFormVM
 		when:
-			def response = resource.updateUser(userDTO, VALID_ID, principal)
+			def response = resource.updateUser(updateForm, VALID_ID)
 		then:
-			1 * userService.update(userDTO)
+			1 * userService.updateUser({it.email == VALID_EMAIL} as User)
 			response.statusCode == HttpStatus.OK
-			(response.body as UserDTO).name == VALID_USERNAME
+			(response.body as ManagedUserVM).name == VALID_USERNAME
 	}
-	def "should not update user when is principal"(){
+	def "should not update user when id doesn't match"(){
 		given:
-			def userDTO = [id: VALID_ID, name: VALID_USERNAME] as UserDTO
-			def principal = Stub(Principal){
-				getName() >> VALID_USERNAME
-			}
+			def updateForm = [email: VALID_EMAIL, id: NOT_VALID_ID] as UpdateUserFormVM
 		when:
-			resource.updateUser(userDTO, VALID_ID, principal)
+			def response = resource.updateUser(updateForm, VALID_ID)
 		then:
-			0 * userService.update(userDTO)
-			thrown(AccessDeniedException)
-	}
-	def "should not update user when id is not valid"(){
-		given:
-			def userDTO = [id: VALID_ID, name: VALID_USERNAME] as UserDTO
-			def principal = Stub(Principal){
-				getName() >> NOT_VALID_USERNAME
-			}
-		when:
-			def response = resource.updateUser(userDTO, NOT_VALID_ID, principal)
-		then:
-			0 * userService.update(userDTO)
+			0 * userService.updateUser(_ as User)
 			response.statusCode == HttpStatus.CONFLICT
+			response.body == null
+	}
+	def "should not update user when doesn't exist"(){
+		given:
+			def updateForm = [email: VALID_EMAIL, id: NOT_VALID_ID] as UpdateUserFormVM
+		when:
+			def response = resource.updateUser(updateForm, NOT_VALID_ID)
+		then:
+			0 * userService.updateUser(_ as User)
+			response.statusCode == HttpStatus.NOT_FOUND
 			response.body == null
 	}
 }

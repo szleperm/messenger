@@ -3,7 +3,6 @@ package pl.szleperm.messenger.domain;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import pl.szleperm.messenger.web.DTO.MessageDTO;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -27,14 +26,7 @@ public class Message {
 	private User user;
 	public Message() {
 	}
-	
-	public Message(MessageDTO messageDTO) {
-		super();
-		this.title = messageDTO.getTitle();
-		this.content = messageDTO.getContent();
-		this.author = messageDTO.getAuthor();
-	}
-	
+
 	public Message(String title, String content) {
 		super();
 		this.title = title;

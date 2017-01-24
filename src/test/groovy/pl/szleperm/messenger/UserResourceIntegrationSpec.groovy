@@ -38,53 +38,65 @@ class UserResourceIntegrationSpec extends Specification{
 	}
 	def "should return all users"(){
 		when:
-			MockHttpServletResponse response = mvc.perform(get("/users")).andReturn().getResponse()
-			def content = json.parseText(response.contentAsString) as List
+		MockHttpServletResponse response = mvc.perform(get("/api/users"))
+                .andReturn()
+                .getResponse()
+		def content = json.parseText(response.contentAsString) as List
 		then:
-			response.status == HttpStatus.OK.value
-			content.size() == 2 
-			(content.stream()
-					.map{m -> (m as Map)["name"]}
-					.collect(Collectors.toList()) as List).contains("user")
+		response.status == HttpStatus.OK.value()
+		content.size() == 2
+		(content.stream()
+				.map{m -> (m as Map)["username"]}
+				.collect(Collectors.toList()) as List).contains("user")
 	}
 	def "should not return user when doesn't exist"(){
 		when:
-			MockHttpServletResponse response = mvc.perform(get("/users/999")).andReturn().getResponse()
+		MockHttpServletResponse response = mvc.perform(get("/api/users/999"))
+				.andReturn()
+				.getResponse()
 		then:
-			response.status == HttpStatus.NOT_FOUND.value
+		response.status == HttpStatus.NOT_FOUND.value()
 	}
 	def "should return user"(){
 		when:
-			MockHttpServletResponse response = mvc.perform(get("/users/1")).andReturn().getResponse()
-			def content = json.parseText(response.contentAsString) as Map
+		MockHttpServletResponse response = mvc.perform(get("/api/users/1"))
+				.andReturn()
+				.getResponse()
+		def content = json.parseText(response.contentAsString) as Map
 		then:
-			response.status == HttpStatus.OK.value
-			content["id"] as int == 1
-			content["name"] == "user"
-			(content["roles"] as List).contains("ROLE_USER")
+		response.status == HttpStatus.OK.value()
+		content["id"] as int == 1
+		content["name"] == "user"
+		(content["roles"] as List).contains("ROLE_USER")
 	}
 	@WithMockUser(username="admin", password="admin",roles=["ADMIN"])
-    "should delete user when user is admin"(){
+	"should delete user when user is admin"(){
 		when:
-			MockHttpServletResponse response = mvc.perform(delete("/users/1").with(csrf().asHeader())).andReturn().getResponse()
-			def content = json.parseText(response.contentAsString) as Map
+		MockHttpServletResponse response = mvc.perform(delete("/api/users/1")
+				.with(csrf().asHeader()))
+				.andReturn()
+				.getResponse()
 		then:
-			response.status == HttpStatus.OK.value
-			content.containsKey("message")
+		response.status == HttpStatus.NO_CONTENT.value()
 	}
 	@WithMockUser(username="admin", password="admin",roles=["ADMIN"])
-    "should not delete user when doesn't exist"(){
+	"should not delete user when doesn't exist"(){
 		when:
-			MockHttpServletResponse response = mvc.perform(delete("/users/999").with(csrf().asHeader())).andReturn().getResponse()
+		MockHttpServletResponse response = mvc.perform(delete("/api/users/999")
+				.with(csrf().asHeader()))
+				.andReturn()
+				.getResponse()
 		then:
-			response.status == HttpStatus.NOT_FOUND.value
+		response.status == HttpStatus.NOT_FOUND.value()
 	}
 	@WithMockUser(username="user", password="user",roles=["USER"])
-    "should not delete user when user is not admin"(){
+	"should not delete user when user is not admin"(){
 		when:
-			MockHttpServletResponse response = mvc.perform(delete("/users/2").with(csrf().asHeader())).andReturn().getResponse()
+		MockHttpServletResponse response = mvc.perform(delete("/api/users/2")
+				.with(csrf().asHeader()))
+				.andReturn()
+				.getResponse()
 		then:
-			response.status == HttpStatus.FORBIDDEN.value
+		response.status == HttpStatus.FORBIDDEN.value()
 	}
 }
-

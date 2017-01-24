@@ -4,11 +4,9 @@ import pl.szleperm.messenger.domain.Message
 import pl.szleperm.messenger.repository.MessageRepository
 import pl.szleperm.messenger.repository.UserRepository
 import pl.szleperm.messenger.testutils.Constants
-import pl.szleperm.messenger.web.DTO.MessageDTO
+import pl.szleperm.messenger.web.vm.MessageFormVM
 import spock.lang.Shared
 import spock.lang.Specification
-import spock.lang.Unroll
-
 
 class MessageServiceSpec extends Specification{
 
@@ -16,7 +14,7 @@ class MessageServiceSpec extends Specification{
 	UserRepository userRepository
 	MessageService service
 	
-	MessageDTO messageDTO
+	MessageFormVM messageForm
 	@Shared Message message
 	
 	def setup(){
@@ -24,7 +22,7 @@ class MessageServiceSpec extends Specification{
 		userRepository = Mock(UserRepository)
 		service = new MessageService(messageRepository, userRepository)
 		message = new Message(Constants.ID, Constants.TITLE, Constants.CONTENT, Constants.USERNAME)
-		messageDTO = new MessageDTO(message)
+		messageForm = [title: Constants.TITLE, content: Constants.CONTENT] as MessageFormVM
 	}
 	def "should call repository for find all projected by"(){
 		when:
@@ -34,16 +32,16 @@ class MessageServiceSpec extends Specification{
 	}
 	def "should call repository for find by id"(){
 		when:
-			def result = service.findById(message.getId())
+			service.findById(message.getId())
 		then:
-			1 * messageRepository.findById(message.getId()) >> Optional.of(message)
-			result.isPresent()
+			1 * messageRepository.findById(message.getId())
 	}
-	def "should call message repository for save and user repository for find"(){
+    @SuppressWarnings("GroovyAssignabilityCheck")
+    "should call message repository for save and user repository for find"(){
 		when:
-			service.create(messageDTO)
+			service.create(messageForm)
 		then:
-			1 * messageRepository.save(new Message(messageDTO)) >> message
+			1 * messageRepository.save({it.title == Constants.TITLE}) >> message
 			1 * userRepository.findByUsername(Constants.USERNAME) >> Optional.ofNullable(null)
 	}
 	def "should call repository for find all"(){
@@ -52,16 +50,10 @@ class MessageServiceSpec extends Specification{
 		then:
 			1 * messageRepository.findAll()
 	}
-	@Unroll
-    "should call repository and #not save message"(){
+    def "should call repository and #not save message"(){
 		when:
-			service.save(messageDTO)
+			service.update(message)
 		then:
-			1 * messageRepository.findById(Constants.ID) >> Optional.ofNullable(result)
-			calls * messageRepository.save(result)
-		where:
-			result  | not   || calls
-			null    | "not" || 0
-			message | ""    || 1
+			1 * messageRepository.save(message)
 	}
 }

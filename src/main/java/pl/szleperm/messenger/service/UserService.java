@@ -7,21 +7,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.szleperm.messenger.domain.Role;
 import pl.szleperm.messenger.domain.User;
+import pl.szleperm.messenger.domain.projection.UserSimplifiedProjection;
 import pl.szleperm.messenger.repository.RoleRepository;
 import pl.szleperm.messenger.repository.UserRepository;
-import pl.szleperm.messenger.web.DTO.PasswordDTO;
-import pl.szleperm.messenger.web.DTO.RegisterDTO;
-import pl.szleperm.messenger.web.DTO.UserDTO;
+import pl.szleperm.messenger.web.vm.ChangePasswordFormVM;
+import pl.szleperm.messenger.web.vm.RegisterFormVM;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 public class UserService {
-	protected UserRepository userRepository;
-	protected RoleRepository roleRepository;
+	private UserRepository userRepository;
+	private RoleRepository roleRepository;
 	
 	@Autowired
 	public UserService(UserRepository userRepository, RoleRepository roleRepository) {
@@ -34,11 +33,11 @@ public class UserService {
 		return userRepository.findByUsername(name);
 	}
 	@Transactional
-	public User create(RegisterDTO registerDTO) {
+	public User create(RegisterFormVM registerFormVM) {
 		User user = new User();
-		user.setUsername(registerDTO.getUsername());
-		user.setEmail(registerDTO.getEmail());
-		user.setPassword(new BCryptPasswordEncoder().encode(registerDTO.getPassword()));
+		user.setUsername(registerFormVM.getUsername());
+		user.setEmail(registerFormVM.getEmail());
+		user.setPassword(new BCryptPasswordEncoder().encode(registerFormVM.getPassword()));
 		user.setRoles(
 				roleRepository.findAll().stream()
 					.filter(r -> r.getName().equals("ROLE_USER"))
@@ -55,35 +54,23 @@ public class UserService {
 		return userRepository.findById(id);
 	}
 	@Transactional
-	@PreAuthorize("#passwordDTO.username == authentication.name")
-	public void changePassword(PasswordDTO passwordDTO) {
-		userRepository.findByUsername(passwordDTO.getUsername())
+	@PreAuthorize("#changePasswordFormVM.username == authentication.name")
+	public void changePassword(ChangePasswordFormVM changePasswordFormVM) {
+		userRepository.findByUsername(changePasswordFormVM.getUsername())
 					.ifPresent(u -> {
 							u.setPassword(new BCryptPasswordEncoder()
-										.encode(passwordDTO.getNewPassword()));
+										.encode(changePasswordFormVM.getNewPassword()));
 							userRepository.save(u);
 					});
 	}
 	@Transactional(readOnly=true)
-	public List<User> findAll() {
-		return userRepository.findAll();
+	public List<UserSimplifiedProjection> findAll() {
+		return userRepository.findAllProjectedBy();
 	}
 	@Transactional
 	@PreAuthorize("hasRole('ADMIN')")
-	public void update(UserDTO userDTO) {
-		Optional<User> user = userRepository.findById(userDTO.getId());
-		Set<Role> roles = userDTO.getRoles().stream()
-								.map(r -> roleRepository.findByName(r).get())
-								.collect(Collectors.toSet());
-								
-		if(user.isPresent()){
-			userRepository.save(user.map(u -> {
-										u.setUsername(userDTO.getName());
-										u.setEmail(userDTO.getEmail());
-										u.setRoles(roles);
-										return u;
-									}).get());
-		}
+	public void updateUser(User user) {
+		userRepository.save(user);
 	}
 	@Transactional
 	@PreAuthorize("hasRole('ADMIN')")

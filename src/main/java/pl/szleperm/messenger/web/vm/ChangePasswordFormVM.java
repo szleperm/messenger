@@ -1,11 +1,11 @@
-package pl.szleperm.messenger.web.DTO;
+package pl.szleperm.messenger.web.vm;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-public class PasswordDTO {
+public class ChangePasswordFormVM {
 	@NotEmpty
 	private String username;
 	@NotEmpty
@@ -15,10 +15,10 @@ public class PasswordDTO {
 	private String newPassword;
 	private String confirmNewPassword;
 	
-	public PasswordDTO() {
+	public ChangePasswordFormVM() {
 	}
 	
-	public PasswordDTO(String username, String oldPassword, String newPassword, String confirmNewPassword) {
+	public ChangePasswordFormVM(String username, String oldPassword, String newPassword, String confirmNewPassword) {
 		super();
 		this.username = username;
 		this.oldPassword = oldPassword;

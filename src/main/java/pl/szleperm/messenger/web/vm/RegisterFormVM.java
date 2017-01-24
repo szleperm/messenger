@@ -1,11 +1,11 @@
-package pl.szleperm.messenger.web.DTO;
+package pl.szleperm.messenger.web.vm;
 
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.Size;
 
-public class RegisterDTO {
+public class RegisterFormVM {
 	@NotEmpty
 	@Size(min=3,max=50)
 	private String username;
@@ -17,9 +17,9 @@ public class RegisterDTO {
 	@Size(min=3,max=50)
 	private String password;
 	private String confirmPassword;
-	public RegisterDTO() {
+	public RegisterFormVM() {
 	}
-	public RegisterDTO(String username, String email, String password, String confirmPassword) {
+	public RegisterFormVM(String username, String email, String password, String confirmPassword) {
 		super();
 		this.username = username;
 		this.email = email;

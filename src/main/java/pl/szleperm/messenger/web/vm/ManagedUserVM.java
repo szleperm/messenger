@@ -1,45 +1,37 @@
-package pl.szleperm.messenger.web.DTO;
+package pl.szleperm.messenger.web.vm;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import org.hibernate.validator.constraints.Email;
-import org.hibernate.validator.constraints.NotEmpty;
-import org.hibernate.validator.constraints.Range;
 import pl.szleperm.messenger.domain.Role;
 import pl.szleperm.messenger.domain.User;
 
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
 @JsonInclude(Include.NON_NULL)
-public class UserDTO {
-	@NotNull
-	@Range(min=1)
+public class ManagedUserVM {
 	private Long id;
-	@NotEmpty
 	private String name;
-	@Email
-	@NotEmpty
 	private String email;
 	private List<String> roles = new ArrayList<>();
-	public UserDTO() {
+	private List<Map<Long, String>> messages;
+	public ManagedUserVM() {
 	}
-	public UserDTO(User user) {
+	public ManagedUserVM(User user) {
 		this.id = user.getId();
 		this.name = user.getUsername();
 		this.email = user.getEmail();
 		this.roles = user.getRoles().stream()
 						.map(Role::getName)
 						.collect(Collectors.toList());
+		this.messages = user.getMessages().stream()
+						.map(m -> Collections.singletonMap(m.getId(),m.getTitle()))
+						.collect(Collectors.toList());
 	}
-	public UserDTO(Long id, String name, String email, List<String> roles) {
-		super();
-		this.id = id;
-		this.name = name;
-		this.email = email;
-		this.roles = roles;
-	}
+
 	public Long getId() {
 		return id;
 	}
@@ -64,5 +56,10 @@ public class UserDTO {
 	public void setRoles(List<String> roles) {
 		this.roles = roles;
 	}
-	
+	public List<Map<Long, String>> getMessages() {
+		return messages;
+	}
+	public void setMessages(List<Map<Long, String>> messages) {
+		this.messages = messages;
+	}
 }

@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import pl.szleperm.messenger.web.DTO.FieldErrorDTO;
+import pl.szleperm.messenger.web.vm.FieldErrorMessageVM;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,12 +16,12 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	@ResponseBody
-	public List<FieldErrorDTO> handleValidationException(MethodArgumentNotValidException exception) {
+	public List<FieldErrorMessageVM> handleValidationException(MethodArgumentNotValidException exception) {
         return exception
                 .getBindingResult()
                 .getFieldErrors()
                 .stream()
-                .map(FieldErrorDTO::new)
+                .map(FieldErrorMessageVM::new)
                 .collect(Collectors.toList());
 	}
 }

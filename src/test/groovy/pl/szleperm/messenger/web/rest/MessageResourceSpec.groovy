@@ -5,16 +5,12 @@ import pl.szleperm.messenger.domain.Message
 import pl.szleperm.messenger.domain.User
 import pl.szleperm.messenger.domain.projection.MessageSimplifiedProjection
 import pl.szleperm.messenger.service.MessageService
-import pl.szleperm.messenger.web.DTO.MessageDTO
+import pl.szleperm.messenger.web.vm.MessageFormVM
 import spock.lang.Specification
 
 import java.time.LocalDateTime
 
-import static pl.szleperm.messenger.testutils.Constants.CONTENT
-import static pl.szleperm.messenger.testutils.Constants.NOT_VALID_ID
-import static pl.szleperm.messenger.testutils.Constants.TITLE
-import static pl.szleperm.messenger.testutils.Constants.VALID_ID
-import static pl.szleperm.messenger.testutils.Constants.VALID_USERNAME
+import static pl.szleperm.messenger.testutils.Constants.*
 
 class MessageResourceSpec extends Specification{
     MessageService messageService
@@ -59,16 +55,15 @@ class MessageResourceSpec extends Specification{
     }
     def "should create message"(){
         given:
-            def message = [title: TITLE, content: CONTENT] as MessageDTO
+            def message = [title: TITLE, content: CONTENT] as MessageFormVM
         when:
             def response = resource.createMessage(message)
         then:
             response.statusCode == HttpStatus.OK
-            response.hasBody()
     }
     def "should update message"(){
         given:
-            def messageDTO = [title: TITLE, content: CONTENT] as MessageDTO
+            def messageDTO = [title: TITLE, content: CONTENT] as MessageFormVM
             def message = [id: VALID_ID, author: VALID_USERNAME] as Message
             messageService.findById(VALID_ID) >> Optional.of(message)
         when:
@@ -79,18 +74,17 @@ class MessageResourceSpec extends Specification{
             response.getBody().id == VALID_ID
             response.getBody().content == CONTENT
             response.getBody().title == TITLE
-            1 * messageService.save({it.id == VALID_ID} as MessageDTO)
+            1 * messageService.update({it.id == VALID_ID} as Message)
     }
     def "should not update message"(){
         given:
-            def messageDTO = [] as MessageDTO
+            def messageForm = [] as MessageFormVM
             messageService.findById(NOT_VALID_ID) >> Optional.ofNullable(null)
         when:
-            def response = resource.updateMessage(NOT_VALID_ID, messageDTO)
+            def response = resource.updateMessage(NOT_VALID_ID, messageForm)
         then:
             response.getStatusCode() == HttpStatus.NOT_FOUND
             !response.hasBody()
-            0 * messageService.save(_ as MessageDTO)
+            0 * messageService.update(_ as Message)
     }
 }
-

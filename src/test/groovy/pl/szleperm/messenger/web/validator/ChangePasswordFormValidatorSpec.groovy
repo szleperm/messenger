@@ -5,18 +5,18 @@ import org.springframework.validation.BindException
 import org.springframework.validation.Errors
 import pl.szleperm.messenger.domain.User
 import pl.szleperm.messenger.service.UserService
-import pl.szleperm.messenger.web.DTO.PasswordDTO
+import pl.szleperm.messenger.web.vm.ChangePasswordFormVM
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
 
 import static pl.szleperm.messenger.testutils.Constants.*
 
-class PasswordDTOValidatorSpec extends Specification{
+class ChangePasswordFormValidatorSpec extends Specification{
 
-	PasswordDTOValidator validator
+	ChangePasswordFormValidator validator
 	BCryptPasswordEncoder encoder = new BCryptPasswordEncoder()
-	PasswordDTO passwordDTO
+	ChangePasswordFormVM passwordDTO
 	@Shared User user = new User()
 	@Unroll
     '''should add #errorCount error(s) when 'username' is #username.toUpperCase()
@@ -24,12 +24,12 @@ class PasswordDTOValidatorSpec extends Specification{
 		'confirm new password' is #confirmNewPassword.toUpperCase()'''(){
 		setup:
 			UserService userService = Stub(UserService)
-			validator = new PasswordDTOValidator(userService)
+			validator = new ChangePasswordFormValidator(userService)
 			user.setPassword(encoder.encode(VALID_PASSWORD))
 			userService.findUserByName(VALID_USERNAME) >> Optional.ofNullable(user)
 			userService.findUserByName(NOT_VALID_USERNAME) >> Optional.ofNullable(null)
-			passwordDTO = new PasswordDTO(username, oldPassword, VALID_PASSWORD, confirmNewPassword)
-			Errors errors = new BindException(passwordDTO, "PasswordDTO")
+			passwordDTO = new ChangePasswordFormVM(username, oldPassword, VALID_PASSWORD, confirmNewPassword)
+			Errors errors = new BindException(passwordDTO, "ChangePasswordFormVM")
 			
 		when:
 			validator.validate(passwordDTO, errors)

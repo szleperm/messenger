@@ -4,11 +4,11 @@ import org.springframework.http.HttpStatus
 import pl.szleperm.messenger.domain.Role
 import pl.szleperm.messenger.domain.User
 import pl.szleperm.messenger.service.UserService
-import pl.szleperm.messenger.web.DTO.PasswordDTO
-import pl.szleperm.messenger.web.DTO.RegisterDTO
-import pl.szleperm.messenger.web.DTO.UserDTO
-import pl.szleperm.messenger.web.validator.PasswordDTOValidator
-import pl.szleperm.messenger.web.validator.RegisterDTOValidator
+import pl.szleperm.messenger.web.validator.ChangePasswordFormValidator
+import pl.szleperm.messenger.web.validator.RegisterFormValidator
+import pl.szleperm.messenger.web.vm.ChangePasswordFormVM
+import pl.szleperm.messenger.web.vm.ManagedUserVM
+import pl.szleperm.messenger.web.vm.RegisterFormVM
 import spock.lang.Specification
 
 import java.security.Principal
@@ -25,13 +25,13 @@ class AccountResourceSpec extends Specification{
 				email: VALID_EMAIL, 
 				roles: [[name: VALID_ROLE] as Role] ] as User
 		userService = Mock(UserService)
-		def passwordDTOValidator = new PasswordDTOValidator(userService)
-		def registerDTOValidator = new RegisterDTOValidator(userService)
+		def passwordDTOValidator = new ChangePasswordFormValidator(userService)
+		def registerDTOValidator = new RegisterFormValidator(userService)
 		resource = new AccountResource(userService, registerDTOValidator, passwordDTOValidator)
 	}
 	def "should register user"(){
 		given:
-			def registerDTO = [username: VALID_USERNAME] as RegisterDTO
+			def registerDTO = [username: VALID_USERNAME] as RegisterFormVM
 		when:
 			def response = resource.register(registerDTO)
 		then:
@@ -40,7 +40,7 @@ class AccountResourceSpec extends Specification{
 	}
 	def "should change password"(){
 		given:
-			def passwordDTO = [password: VALID_PASSWORD] as PasswordDTO
+			def passwordDTO = [password: VALID_PASSWORD] as ChangePasswordFormVM
 		when:
 			def response = resource.changePassword(passwordDTO)
 		then:
@@ -57,8 +57,8 @@ class AccountResourceSpec extends Specification{
 			def response = resource.userDetails(principal)
 		then:
 			response.statusCode == HttpStatus.OK
-			(response.body as UserDTO).name == VALID_USERNAME
-			(response.body as UserDTO).email == VALID_EMAIL
+			(response.body as ManagedUserVM).name == VALID_USERNAME
+			(response.body as ManagedUserVM).email == VALID_EMAIL
 	}
 	def "should not return user details when user doesn't exist"(){
 		given:

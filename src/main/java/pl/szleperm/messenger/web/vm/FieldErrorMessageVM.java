@@ -1,17 +1,17 @@
-package pl.szleperm.messenger.web.DTO;
+package pl.szleperm.messenger.web.vm;
 
 import org.springframework.validation.FieldError;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-public class FieldErrorDTO {
+public class FieldErrorMessageVM {
 	private String field;
 	private String message;
 	
-	public FieldErrorDTO() {
+	public FieldErrorMessageVM() {
 	}
-	public FieldErrorDTO(FieldError error) {
+	public FieldErrorMessageVM(FieldError error) {
 		this.field = error.getField();
 		this.message = Arrays.stream(error.getField().split("(?=[A-Z])"))
 								.map(String::toLowerCase)
