@@ -4,36 +4,42 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-import pl.szleperm.messenger.service.UserService;
-import pl.szleperm.messenger.web.vm.UpdateUserFormVM;
-
-import java.util.Objects;
+import pl.szleperm.messenger.domain.user.service.UserService;
+import pl.szleperm.messenger.web.forms.UserFormVM;
 
 @Component
-public class UpdateUserFormValidator implements Validator{
-	
-	private final UserService userService;
-	
-	@Autowired
-	public UpdateUserFormValidator(UserService userService) {
-		this.userService = userService;
-	}
-	@Override
-	public boolean supports(Class<?> clazz) {
-		return clazz.equals(UpdateUserFormVM.class);
-	}
-	@Override
-	public void validate(Object target, Errors errors) {
-		UpdateUserFormVM userForm = (UpdateUserFormVM) target;
-		validateEmail(errors, userForm);
-	}
+public class UpdateUserFormValidator implements Validator {
 
-    private void validateEmail(Errors errors, UpdateUserFormVM userForm) {
-		userService.findUserByEmail(userForm.getEmail())
-				.filter(u -> !Objects.equals(u.getId(), userForm.getId()))
-                .ifPresent(user -> errors
-								.rejectValue("email",
-									"email.already-exist",
-									String.format("%s already in use", userForm.getEmail())));
-	}
+    private final UserService userService;
+
+    @Autowired
+    public UpdateUserFormValidator(UserService userService) {
+        this.userService = userService;
+    }
+
+    @Override
+    public boolean supports(Class<?> clazz) {
+        return clazz.equals(UserFormVM.class);
+    }
+
+    @Override
+    public void validate(Object target, Errors errors) {
+        UserFormVM userForm = (UserFormVM) target;
+        validateRoles(errors, userForm);
+    }
+
+    private void validateRoles(Errors errors, UserFormVM userForm) {
+        if (userForm.getRoles() == null || userForm.getRoles().isEmpty()) {
+            errors.rejectValue("roles", "roles.empty", "roles list equals empty");
+        } else {
+            userForm.getRoles()
+                    .forEach(r -> {
+                        if (!userService.findRoleByName(r).isPresent()) {
+                            errors.rejectValue("roles",
+                                    "roles.notFound",
+                                    String.format("role %s not found", r));
+                        }
+                    });
+        }
+    }
 }
