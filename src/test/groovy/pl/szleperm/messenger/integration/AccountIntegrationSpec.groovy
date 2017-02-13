@@ -59,6 +59,7 @@ class AccountIntegrationSpec extends Specification {
         (embedded["roles"] as List).size() == 1
         (embedded["roles"] as List).contains([name: "ROLE_USER"])
         links.containsKey("self")
+        links.containsKey("users")
     }
 
     @WithAnonymousUser

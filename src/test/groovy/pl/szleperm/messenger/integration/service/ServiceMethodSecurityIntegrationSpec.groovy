@@ -6,14 +6,14 @@ import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.test.context.support.WithAnonymousUser
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.util.ReflectionTestUtils
-import pl.szleperm.messenger.domain.user.entity.Role
-import pl.szleperm.messenger.domain.user.entity.User
-import pl.szleperm.messenger.domain.user.repository.RoleRepository
-import pl.szleperm.messenger.domain.user.repository.UserRepository
-import pl.szleperm.messenger.domain.user.service.UserService
+import pl.szleperm.messenger.domain.user.Role
+import pl.szleperm.messenger.domain.user.User
+import pl.szleperm.messenger.domain.user.RoleRepository
+import pl.szleperm.messenger.domain.user.UserRepository
+import pl.szleperm.messenger.domain.user.UserService
+import pl.szleperm.messenger.domain.user.form.PasswordForm
 import pl.szleperm.messenger.testutils.Constants
-import pl.szleperm.messenger.web.forms.AccountFormsVM
-import pl.szleperm.messenger.web.forms.UserFormVM
+import pl.szleperm.messenger.domain.user.form.UserForm
 import spock.lang.Specification
 
 @SpringBootTest
@@ -46,7 +46,7 @@ class ServiceMethodSecurityIntegrationSpec extends Specification {
     @WithMockUser(username = Constants.USERNAME)
     "should change password when username match"() {
         setup:
-        AccountFormsVM.ChangePasswordFormVM passwordDTO = new AccountFormsVM.ChangePasswordFormVM()
+        PasswordForm passwordDTO = new PasswordForm()
         passwordDTO.setUsername(Constants.USERNAME)
         passwordDTO.setNewPassword(Constants.PASSWORD)
         when:
@@ -61,7 +61,7 @@ class ServiceMethodSecurityIntegrationSpec extends Specification {
     @WithMockUser(username = Constants.OTHER_USERNAME, roles = Constants.ADMIN)
     "should not change password when username doesn't match"() {
         when:
-        userService.changePassword(new AccountFormsVM.ChangePasswordFormVM())
+        userService.changePassword(new PasswordForm())
         then:
         thrown(AccessDeniedException.class)
         0 * userRepository.findByUsername(_ as String)
@@ -72,7 +72,7 @@ class ServiceMethodSecurityIntegrationSpec extends Specification {
     @WithAnonymousUser
     "should not change password when is anonymous"() {
         when:
-        userService.changePassword(new AccountFormsVM.ChangePasswordFormVM())
+        userService.changePassword(new PasswordForm())
         then:
         thrown(AccessDeniedException.class)
         0 * userRepository.findByUsername(_ as String)
@@ -83,24 +83,25 @@ class ServiceMethodSecurityIntegrationSpec extends Specification {
     @WithMockUser(username = Constants.ADMIN, roles = Constants.ADMIN)
     "should update user when is with ADMIN user"() {
         given:
-        def userForm = [roles: [Constants.USER, Constants.ADMIN]] as UserFormVM
+        def userForm = [roles: [Constants.USER, Constants.ADMIN]] as UserForm
         when:
-        userService.updateUser(userForm, Constants.VALID_USERNAME)
+        userService.update(userForm, Constants.VALID_USERNAME)
         then:
         notThrown(AccessDeniedException.class)
         1 * userRepository.findByUsername(Constants.VALID_USERNAME as String) >> Optional.of(user)
         1 * roleRepository.findByName(Constants.USER) >> Optional.of([id: 1, name: Constants.USER] as Role)
         1 * roleRepository.findByName(Constants.ADMIN) >> Optional.of([id: 2, name: Constants.ADMIN] as Role)
         1 * userRepository.save({(it as User).roles.size() == 2})
+        1 * userRepository.findProjectedByUsername(Constants.VALID_USERNAME) >> Optional.empty()
     }
 
     @SuppressWarnings("GroovyAssignabilityCheck")
     @WithMockUser(username = Constants.USERNAME, roles = Constants.USER)
     "should not update user when hasn't role ADMIN and has other username"() {
         given:
-        def userForm = [roles: [Constants.USER, Constants.ADMIN]] as UserFormVM
+        def userForm = [roles: [Constants.USER, Constants.ADMIN]] as UserForm
         when:
-        userService.updateUser(userForm, Constants.VALID_USERNAME)
+        userService.update(userForm, Constants.VALID_USERNAME)
         then:
         thrown(AccessDeniedException.class)
         0 * userRepository.findByUsername(_ as String) >> Optional.ofNullable(user)
@@ -112,9 +113,9 @@ class ServiceMethodSecurityIntegrationSpec extends Specification {
     @WithAnonymousUser
     "should not update user when is anonymous"() {
         given:
-        def userForm = [roles: [Constants.USER, Constants.ADMIN]] as UserFormVM
+        def userForm = [roles: [Constants.USER, Constants.ADMIN]] as UserForm
         when:
-        userService.updateUser(userForm, Constants.VALID_USERNAME)
+        userService.update(userForm, Constants.VALID_USERNAME)
         then:
         thrown(AccessDeniedException.class)
         0 * userRepository.findByUsername(_ as String) >> Optional.of(user)
@@ -127,7 +128,9 @@ class ServiceMethodSecurityIntegrationSpec extends Specification {
         when:
         userService.delete(Constants.USERNAME)
         then:
-        1 * userRepository.delete(Constants.USERNAME)
+        //noinspection GroovyAssignabilityCheck
+        1 * userRepository.findByUsername(Constants.USERNAME) >> Optional.of(User.withName(Constants.USERNAME))
+        1 * userRepository.delete({it.username == Constants.USERNAME} as User)
     }
 
     @WithMockUser(roles = Constants.USER)

@@ -37,7 +37,7 @@ class UserIntegrationSpec extends Specification {
                 .apply(springSecurity())
                 .build()
     }
-
+    @WithMockUser(username = "user", password = "user", roles = ["USER"])
     def "should return all users"() {
         when:
         MockHttpServletResponse response = mvc.perform(get("/api/users"))
@@ -51,7 +51,7 @@ class UserIntegrationSpec extends Specification {
         users.size() == 2
         (links["self"]["href"] as String).endsWith("/api/users")
     }
-
+    @WithMockUser(username = "admin", password = "admin", roles = ["ADMIN"])
     def "should not return user when doesn't exist"() {
         when:
         MockHttpServletResponse response = mvc.perform(get("/api/users/999"))
@@ -60,7 +60,7 @@ class UserIntegrationSpec extends Specification {
         then:
         response.status == HttpStatus.NOT_FOUND.value()
     }
-
+    @WithMockUser(username = "admin", password = "admin", roles = ["ADMIN"])
     def "should return user"() {
         when:
         MockHttpServletResponse response = mvc.perform(get("/api/users/" + id))
@@ -74,6 +74,15 @@ class UserIntegrationSpec extends Specification {
         content["username"] == "user"
         roles.contains([name: "ROLE_USER"])
         (links["self"]["href"] as String).endsWith("api/users/"+id)
+    }
+    @WithMockUser(username = "user", password = "user", roles = ["USER"])
+    def "should return forbidden when user isn't admin"() {
+        when:
+        MockHttpServletResponse response = mvc.perform(get("/api/users/" + id))
+                .andReturn()
+                .getResponse()
+        then:
+        response.status == HttpStatus.FORBIDDEN.value()
     }
 
     @WithMockUser(username = "admin", password = "admin", roles = ["ADMIN"])

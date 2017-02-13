@@ -7,8 +7,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pl.szleperm.messenger.domain.user.entity.User;
-import pl.szleperm.messenger.domain.user.repository.UserRepository;
+import pl.szleperm.messenger.domain.user.User;
+import pl.szleperm.messenger.domain.user.UserRepository;
 
 import java.util.stream.Collectors;
 

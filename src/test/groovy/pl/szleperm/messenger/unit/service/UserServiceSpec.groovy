@@ -1,15 +1,13 @@
 package pl.szleperm.messenger.unit.service
 
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
-import pl.szleperm.messenger.domain.user.entity.Role
-import pl.szleperm.messenger.domain.user.entity.User
-import pl.szleperm.messenger.domain.user.repository.RoleRepository
-import pl.szleperm.messenger.domain.user.repository.UserRepository
-import pl.szleperm.messenger.domain.user.service.UserService
+import pl.szleperm.messenger.domain.user.*
+import pl.szleperm.messenger.domain.user.form.PasswordForm
+import pl.szleperm.messenger.domain.user.form.RegisterForm
+import pl.szleperm.messenger.domain.user.form.UserForm
 import pl.szleperm.messenger.testutils.Constants
-import pl.szleperm.messenger.web.forms.AccountFormsVM
-import pl.szleperm.messenger.web.forms.UserFormVM
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -18,71 +16,57 @@ class UserServiceSpec extends Specification {
     RoleRepository roleRepository
     UserService userService
 
-    User user
-    Role role
-
     def setup() {
         userRepository = Mock(UserRepository)
         roleRepository = Mock(RoleRepository)
         userService = new UserService(userRepository, roleRepository)
-        role = [name: Constants.ROLE_USER] as Role
-        user = [
-                username: Constants.VALID_USERNAME,
-                email   : Constants.EMAIL,
-                password: Constants.PASSWORD,
-                roles   : [role]
-        ] as User
     }
 
     def "should find user by name"() {
         when:
         userService.findByName(Constants.USERNAME)
         then:
-        //noinspection GroovyAssignabilityCheck
-        1 * userRepository.findByUsername(Constants.USERNAME) >> Optional.of(user)
+        1 * userRepository.findByUsername(Constants.USERNAME)
     }
 
     def "should find user by email"() {
         when:
         userService.findByEmail(Constants.EMAIL)
         then:
-        //noinspection GroovyAssignabilityCheck
-        1 * userRepository.findByEmail(Constants.EMAIL) >> Optional.of(user)
+        1 * userRepository.findByEmail(Constants.EMAIL)
     }
 
+    @SuppressWarnings("GroovyAssignabilityCheck")
     def "should create user"() {
         setup:
-        def registerForm = [
+        def form = [
                 username       : Constants.USERNAME,
                 email          : Constants.EMAIL,
                 password       : Constants.PASSWORD,
                 confirmPassword: Constants.PASSWORD
-        ] as AccountFormsVM.RegisterFormVM
+        ] as RegisterForm
+        def role = [name: Constants.ROLE_USER] as Role
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder()
         when:
-        userService.create(registerForm)
+        userService.create(form)
         then:
-        //noinspection GroovyAssignabilityCheck
-        1 * roleRepository.findAll() >> user.getRoles().toList()
+        1 * roleRepository.findAll() >> [role]
         1 * userRepository.save({
-            (it.roles == user.roles) &&
-                    encoder.matches(Constants.PASSWORD, it.password as String)
+            (it.roles == [role] as Set) && (encoder.matches(Constants.PASSWORD, it.password as String))
         })
     }
 
+    @SuppressWarnings("GroovyAssignabilityCheck")
     @Unroll
     "should #desc when username is #username.toUpperCase()"() {
         setup:
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder()
-        AccountFormsVM.ChangePasswordFormVM passwordDTO = new AccountFormsVM.ChangePasswordFormVM()
-        passwordDTO.setUsername(username)
-        passwordDTO.setNewPassword(Constants.PASSWORD)
+        PasswordForm form = [username: username, newPassword: Constants.PASSWORD] as PasswordForm
         when:
-        userRepository.findByUsername(Constants.VALID_USERNAME) >> Optional.of(user)
+        userRepository.findByUsername(Constants.VALID_USERNAME) >> Optional.of([] as User)
         userRepository.findByUsername(Constants.NOT_VALID_USERNAME) >> Optional.empty()
-        userService.changePassword(passwordDTO)
+        userService.changePassword(form)
         then:
-        //noinspection GroovyAssignabilityCheck
         calls * userRepository.save({ encoder.matches(Constants.PASSWORD, it.password as String) })
         where:
         username                     | desc                  || calls
@@ -91,57 +75,95 @@ class UserServiceSpec extends Specification {
     }
 
 
-    def "should find projected by name"() {
+    @SuppressWarnings("GroovyAssignabilityCheck")
+    def "should find resource by name"() {
+        given:
+        def entity = Stub(UserProjection) {
+            getRoles() >> [Constants.ROLE_USER]
+        }
         when:
-        userService.findProjectedByName(Constants.USERNAME)
+        userService.findResourceByName(Constants.USERNAME)
         then:
-        //noinspection GroovyAssignabilityCheck
-        1 * userRepository.findProjectedByUsername(Constants.USERNAME) >> Optional.of(user)
+        1 * userRepository.findProjectedByUsername(Constants.USERNAME) >> Optional.of(entity)
+
     }
 
+    @SuppressWarnings("GroovyAssignabilityCheck")
     def "should find all users"() {
         given:
         def pageable = new PageRequest(0, 10)
         when:
-        userService.findAll(pageable)
+        userService.searchByName("", pageable)
         then:
-        1 * userRepository.findPagedProjectedBy(pageable)
+        1 * userRepository.findByUsernameContaining("", pageable) >> Stub(Page)
     }
+
+    @SuppressWarnings("GroovyAssignabilityCheck")
     @Unroll
     def "should #desc user"() {
         given:
         def role = [name: Constants.VALID_ROLE] as Role
-        def form = [roles: [Constants.VALID_ROLE]] as UserFormVM
-        userRepository.findByUsername(Constants.VALID_USERNAME) >> Optional.of(user)
+        def form = [roles: [Constants.VALID_ROLE]] as UserForm
+        def entity = Stub(UserProjection) {
+            getRoles() >> [Constants.VALID_ROLE]
+        }
+        userRepository.findByUsername(Constants.VALID_USERNAME) >> Optional.of([] as User)
         userRepository.findByUsername(Constants.NOT_VALID_USERNAME) >> Optional.empty()
         when:
-        userService.updateUser(form, id as String)
+        userService.update(form, id as String)
         then:
-        //noinspection GroovyAssignabilityCheck
         calls * roleRepository.findByName(Constants.VALID_ROLE) >> Optional.of(role)
-        //noinspection GroovyAssignabilityCheck
-        calls * userRepository.save({it.roles.contains(role)})
-        1 * userRepository.findProjectedByUsername(id as String)
+        calls * userRepository.save({ it.roles.contains(role) })
+        1 * userRepository.findProjectedByUsername(id as String) >> Optional.of(entity)
         where:
-        id                     | desc         || calls
-        //noinspection GroovyAssignabilityCheck
+        id                           | desc         || calls
         Constants.VALID_USERNAME     | "update"     || 1
-        //noinspection GroovyAssignabilityCheck
         Constants.NOT_VALID_USERNAME | "not update" || 0
     }
 
+    @SuppressWarnings("GroovyAssignabilityCheck")
     def "should delete user"() {
         when:
-        userService.delete(Constants.USERNAME)
+        def optional = userService.delete(Constants.USERNAME)
         then:
-        1 * userRepository.delete(Constants.USERNAME)
+        1 * userRepository.findByUsername(Constants.USERNAME) >> Optional.of(User.withName(Constants.USERNAME))
+        1 * userRepository.delete({ it.username == Constants.USERNAME } as User)
+        optional.isPresent()
     }
-    def "should find role by name"() {
 
+    @SuppressWarnings("GroovyAssignabilityCheck")
+    def "should not delete user"() {
+        when:
+        def optional = userService.delete(Constants.USERNAME)
+        then:
+        1 * userRepository.findByUsername(Constants.USERNAME) >> Optional.empty()
+        0 * userRepository.delete(Constants.USERNAME)
+        !optional.isPresent()
+    }
+
+    def "should find role by name"() {
         when:
         userService.findRoleByName(Constants.VALID_ROLE)
         then:
-        //noinspection GroovyAssignabilityCheck
-        1 * roleRepository.findByName(Constants.VALID_ROLE) >> Optional.of(role)
+        1 * roleRepository.findByName(Constants.VALID_ROLE)
+    }
+
+    @SuppressWarnings("GroovyPointlessBoolean")
+    @Unroll
+    def "should return #expectation when username is #username.toUpperCase() and password is #pass.toUpperCase()"() {
+        given:
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder()
+        def user = [password: encoder.encode(Constants.VALID_PASSWORD)] as User
+        userRepository.findByUsername(Constants.VALID_USERNAME) >> Optional.of(user)
+        userRepository.findByUsername(Constants.NOT_VALID_USERNAME) >> Optional.empty()
+        when:
+        def result = userService.checkPasswordForUsername(pass as String, username as String)
+        then:
+        result == expectation
+        where:
+        pass                         | username                     || expectation
+        Constants.NOT_VALID_PASSWORD | Constants.NOT_VALID_USERNAME || false
+        Constants.NOT_VALID_PASSWORD | Constants.VALID_USERNAME     || false
+        Constants.VALID_PASSWORD     | Constants.VALID_USERNAME     || true
     }
 }

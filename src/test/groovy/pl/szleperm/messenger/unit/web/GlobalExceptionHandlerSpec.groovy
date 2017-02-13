@@ -3,8 +3,8 @@ package pl.szleperm.messenger.unit.web
 import org.springframework.validation.BindingResult
 import org.springframework.validation.FieldError
 import org.springframework.web.bind.MethodArgumentNotValidException
+import pl.szleperm.messenger.infrastructure.exception.ResourceNotFoundException
 import pl.szleperm.messenger.web.rest.GlobalExceptionHandler
-import pl.szleperm.messenger.web.rest.utils.ResourceNotFoundException
 import spock.lang.Specification
 
 class GlobalExceptionHandlerSpec extends Specification {

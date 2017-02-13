@@ -1,11 +1,8 @@
 package pl.szleperm.messenger.unit.resource
 
-import org.springframework.mock.web.MockHttpServletRequest
-import org.springframework.web.context.request.RequestContextHolder
-import org.springframework.web.context.request.ServletRequestAttributes
-import pl.szleperm.messenger.domain.user.resource.UserProjection
-import pl.szleperm.messenger.domain.user.resource.UserResource
-import pl.szleperm.messenger.domain.user.resource.UserResourceAssembler
+import pl.szleperm.messenger.domain.user.UserProjection
+import pl.szleperm.messenger.domain.user.UserResource
+import pl.szleperm.messenger.domain.user.UserResourceAssembler
 import spock.lang.Specification
 
 import static pl.szleperm.messenger.testutils.Constants.*
@@ -20,8 +17,6 @@ class UserResourceAssemblerSpec extends Specification {
             getEmail() >> VALID_EMAIL
             getRoles() >> [ROLE_USER]
         }
-        def requestAttributes = new ServletRequestAttributes(new MockHttpServletRequest())
-        RequestContextHolder.setRequestAttributes(requestAttributes)
     }
     def "should return resource"(){
         when:
@@ -31,7 +26,6 @@ class UserResourceAssemblerSpec extends Specification {
         resource.username == VALID_USERNAME
         resource.email == VALID_EMAIL
         (wrappers[0] as UserResource.RoleResource).name == ROLE_USER
-        resource.getLink("self").href.endsWith("/users/"+Base64.urlEncoder.encodeToString(VALID_USERNAME.getBytes()))
     }
 
 }

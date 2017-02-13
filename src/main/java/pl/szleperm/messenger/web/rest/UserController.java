@@ -1,90 +1,92 @@
 package pl.szleperm.messenger.web.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.MediaTypes;
-import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.ResourceSupport;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
-import pl.szleperm.messenger.domain.user.resource.UserProjection;
-import pl.szleperm.messenger.domain.user.resource.UserResourceAssembler;
-import pl.szleperm.messenger.domain.user.service.UserService;
-import pl.szleperm.messenger.web.forms.UserFormVM;
-import pl.szleperm.messenger.web.rest.utils.ResourceNotFoundException;
-import pl.szleperm.messenger.web.validator.UpdateUserFormValidator;
+import pl.szleperm.messenger.domain.user.UserService;
+import pl.szleperm.messenger.domain.user.form.UserForm;
+import pl.szleperm.messenger.domain.user.validator.UserFormValidator;
+import pl.szleperm.messenger.infrastructure.exception.ResourceNotFoundException;
+import pl.szleperm.messenger.web.rest.utils.ControllerLinkCreator;
+import pl.szleperm.messenger.web.rest.utils.CustomPagedResourcesAssembler;
+import pl.szleperm.messenger.web.rest.utils.URLIdBase64Codec;
 
 import javax.validation.Valid;
-import java.util.Base64;
 import java.util.Optional;
-
-import static pl.szleperm.messenger.web.rest.utils.PagedResourceCreator.createPagedResources;
 
 
 /**
  * REST Controller for users
  *
  * @author Marcin Szleper
- *
  */
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping(value = "/api/users", produces = {MediaTypes.HAL_JSON_VALUE, MediaType.APPLICATION_JSON_VALUE})
 public class UserController {
-    private static final String USER_NOT_FOUND = "user not found";
+    private static final String USER_LIST_NOT_FOUND = "user list not found";
     private final UserService userService;
-    private final UpdateUserFormValidator updateUserFormValidator;
-    private final UserResourceAssembler userResourceAssembler;
+    private final UserFormValidator userFormValidator;
+    private final ControllerLinkCreator controllerLinkCreator;
+    private final CustomPagedResourcesAssembler customPagedResourcesAssembler;
+    private final URLIdBase64Codec codec = new URLIdBase64Codec();
 
     @Autowired
-    public UserController(UserService userService, UpdateUserFormValidator updateUserFormValidator, UserResourceAssembler userResourceAssembler) {
+    public UserController(UserService userService,
+                          UserFormValidator userFormValidator,
+                          ControllerLinkCreator controllerLinkCreator,
+                          CustomPagedResourcesAssembler customPagedResourcesAssembler) {
         this.userService = userService;
-        this.updateUserFormValidator = updateUserFormValidator;
-        this.userResourceAssembler = userResourceAssembler;
+        this.userFormValidator = userFormValidator;
+        this.controllerLinkCreator = controllerLinkCreator;
+        this.customPagedResourcesAssembler = customPagedResourcesAssembler;
     }
 
-    @InitBinder(value = "userFormVM")
+    @InitBinder(value = "userForm")
     public void userFormBinder(WebDataBinder binder) {
-        binder.addValidators(updateUserFormValidator);
+        binder.addValidators(userFormValidator);
     }
 
-    @RequestMapping(method = RequestMethod.GET, produces = {MediaTypes.HAL_JSON_VALUE, MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<? extends ResourceSupport> getAll(@PageableDefault Pageable pageable) {
-        Page<UserProjection> page = userService.findAll(pageable);
-        PagedResources<? extends ResourceSupport> pagedResources = createPagedResources(page, userResourceAssembler);
-        return ResponseEntity.ok(pagedResources);
+    @RequestMapping(method = RequestMethod.GET)
+    public ResponseEntity<? extends ResourceSupport> getAll(@PageableDefault Pageable pageable,
+                                                            @RequestParam(required = false) String search) {
+        search = search == null ? "" : search;
+        return Optional.of(userService.searchByName(search, pageable))
+                .map(page -> page.map(controllerLinkCreator::putSingleUserLink))
+                .map(customPagedResourcesAssembler::toResource)
+                .map(controllerLinkCreator::putCollectionLinks)
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> new ResourceNotFoundException(USER_LIST_NOT_FOUND));
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public ResponseEntity<? extends ResourceSupport> getUser(@PathVariable String id) {
-        String name = new String(Base64.getUrlDecoder().decode(id));
-        return userService.findProjectedByName(name)
-                .map(userResourceAssembler::toResource)
+    public ResponseEntity<? extends ResourceSupport> getOne(@PathVariable String id) {
+        return userService.findResourceByName(codec.decode(id))
+                .map(controllerLinkCreator::putSingleUserLink)
+                .map(controllerLinkCreator::putUserCollectionLink)
                 .map(ResponseEntity::ok)
-                .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND));
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PATCH)
-    public ResponseEntity<? extends ResourceSupport> updateUser(@PathVariable String id, @RequestBody @Valid UserFormVM formVM) {
-        String name = new String(Base64.getUrlDecoder().decode(id));
-        return userService.updateUser(formVM, name)
-                .map(userResourceAssembler::toResource)
+    public ResponseEntity<? extends ResourceSupport> update(@PathVariable String id, @RequestBody @Valid UserForm form) {
+        return userService.update(form, codec.decode(id))
+                .map(controllerLinkCreator::putSingleUserLink)
+                .map(controllerLinkCreator::putUserCollectionLink)
                 .map(ResponseEntity::ok)
-                .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND));
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<Void> deleteUser(@PathVariable String id) {
-        String name = new String(Base64.getUrlDecoder().decode(id));
-        Optional<UserProjection> existingUser = userService.findProjectedByName(name);
-        if (!existingUser.isPresent()) {
-            throw new ResourceNotFoundException(USER_NOT_FOUND);
-        }
-        userService.delete(name);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> delete(@PathVariable String id) {
+        return userService.delete(codec.decode(id))
+                .map(u -> ResponseEntity.noContent().build())
+                .orElse(ResponseEntity.notFound().build());
     }
 }

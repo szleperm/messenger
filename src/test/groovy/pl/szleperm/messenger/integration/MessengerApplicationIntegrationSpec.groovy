@@ -23,14 +23,17 @@ class MessengerApplicationIntegrationSpec extends Specification {
                  "userController",
                  "accountController",
                  "userService",
+                 "messageService",
                  "userDetailsServiceImpl",
                  "springSecurityAuditorAware",
                  "userRepository",
+                 "messageRepository",
                  "roleRepository",
                  "globalExceptionHandler",
-                 "changePasswordFormValidator",
+                 "passwordFormValidator",
                  "registerFormValidator",
-                 "updateUserFormValidator"
+                 "userFormValidator",
+                 "messageFormValidator"
         ]
     }
 }

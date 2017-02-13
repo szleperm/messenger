@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import pl.szleperm.messenger.web.rest.utils.ResourceNotFoundException;
-import pl.szleperm.messenger.web.validator.FieldErrorModel;
+import pl.szleperm.messenger.infrastructure.exception.ResourceNotFoundException;
+import pl.szleperm.messenger.web.rest.utils.FieldErrorModel;
 
 import java.util.Collections;
 import java.util.List;
