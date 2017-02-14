@@ -1,0 +1,128 @@
+<div class="modal-header">
+	<h3>Register free <img src="/images/logo-nav.png" height="30" alt="messenger"> account</h3>
+</div>
+<div class="modal-body">
+	<div class="alert alert-danger" ng-if="c.registerError">
+		<p>An error occured. Please try again.</p>
+	</div>
+	<div class="well">
+		<form ng-submit="c.register()" name="form.userForm">
+			<div class="form-group register-form" 
+				ng-class="{'has-error': form.userForm.username.$invalid && form.userForm.username.$dirty}">
+				<label for="username">Username</label>
+				<div class="input-group">
+					<span class="input-group-addon"> <span
+						class="glyphicon glyphicon-user"></span>
+					</span> <input class="form-control" type="text" id="username" name="username"
+						ng-model="c.registerData.username" required ng-minlength="3" ng-maxlength="50"
+						unique="username" placeholder="Enter your username"
+						ng-model-options="{ debounce: 1000 }">
+				</div>
+				 <p class="help-block" ng-show="form.userForm.username.$pending.unique">
+				 	Checking...
+				 </p>
+				 <p class="help-block" ng-show="form.userForm.username.$error.unique">
+				 	Username already in use
+				 </p>
+				 <p class="help-block" ng-show="form.userForm.username.$error.minlength">
+				 	Username is too short
+				 </p>                     
+                 <p class="help-block" ng-show="form.userForm.username.$error.required 
+                   	&& form.userForm.username.$dirty">                    
+                 	Username may not be empty                        
+                 </p>                   
+                 <p class="help-block" ng-show="form.userForm.username.$error.maxlength">
+                 	Username is too long
+                 </p>
+			</div>
+			<div class="form-group"
+				ng-class="{'has-error': form.userForm.email.$invalid && form.userForm.email.$dirty}">
+				<label for="email">Email</label>
+				<div class="input-group">
+					<span class="input-group-addon"> <span
+						class="glyphicon glyphicon-envelope"></span>
+					</span> <input class="form-control" type="email" id="email" name="email"
+						ng-model="c.registerData.email" required ng-minlength="3" ng-maxlength="50"
+						unique="email" placeholder="Enter your email"
+						ng-model-options="{ debounce: 1000 }">
+				</div>
+				 <p class="help-block" ng-show="form.userForm.email.$pending.unique">
+				 	Checking...
+				 </p>
+				 <p class="help-block" ng-show="form.userForm.email.$error.unique">
+				 	Email already in use
+				 </p>
+				 <p class="help-block" ng-show="form.userForm.email.$error.minlength
+				 	&& !form.userForm.email.$error.email">
+				 	Email is too short
+				 </p>                     
+                 <p class="help-block" ng-show="form.userForm.email.$error.required 
+                   	&& form.userForm.email.$dirty">                    
+                 	Email may not be empty                        
+                 </p>
+                 <p class="help-block" ng-show="form.userForm.email.$error.email 
+                   	&& form.userForm.email.$dirty">                    
+                 	Email is not valid                        
+                 </p>                   
+                 <p class="help-block" ng-show="form.userForm.email.$error.maxlength
+                 	&& !form.userForm.email.$error.email">
+                 	Email is too long
+                 </p>
+			</div>
+			<div class="form-group" 
+				ng-class="{'has-error': form.userForm.password.$invalid && form.userForm.password.$dirty}">
+				<label for="password">Password</label>
+				<div class="input-group">
+					<span class="input-group-addon"> <span
+						class="glyphicon glyphicon-lock"></span>
+					</span> <input class="form-control" type="password" id="password" name="password"
+						ng-model="c.registerData.password" required ng-minlength="3" ng-maxlength="50"
+						placeholder="Enter your password">
+				</div>
+				<p class="help-block" ng-show="form.userForm.password.$error.minlength">
+				 	Password is too short
+				 </p>                     
+                 <p class="help-block" ng-show="form.userForm.password.$error.required 
+                   	&& form.userForm.password.$dirty">                    
+                 	Password may not be empty                        
+                 </p>                   
+                 <p class="help-block" ng-show="form.userForm.password.$error.maxlength">
+                 	Password is too long
+                 </p>
+			</div>
+			<div class="form-group" 
+				ng-class="{'has-error': form.userForm.confirmPassword.$invalid 
+				&& form.userForm.confirmPassword.$dirty}">
+				<label for="confirmPassword">Confirm password</label>
+				<div class="input-group">
+					<span class="input-group-addon"> <span
+						class="glyphicon glyphicon-lock"></span>
+					</span> <input class="form-control" type="password" id="confirmPassword" name="confirmPassword"
+						ng-model="c.registerData.confirmPassword" required compare-to="c.registerData.password"
+						placeholder="Confirm your password">
+				</div>
+			<p class="help-block" ng-show="form.userForm.confirmPassword.$error.compareTo &&
+				!form.userForm.confirmPassword.$error.required">
+				Must match to previous entry
+			</p>
+			<p class="help-block" ng-show="form.userForm.confirmPassword.$error.required &&
+				form.userForm.confirmPassword.$dirty">
+				Confirm password may not be empty
+			</p>
+			</div>
+			<br/>
+			<div class="form-group">
+				<input type="submit" value="Submit"
+					class="btn btn-success btn-block" ng-disabled="form.userForm.$invalid">
+			</div>
+		</form>
+	</div>
+</div>
+<div class="modal-footer">
+	<p>
+		Already a member?
+		<button class="btn btn-primary" ng-click="c.change()">Go to
+			login</button>
+		<button class="btn btn-default" ng-click="c.cancel()">Cancel</button>
+	</p>
+</div>

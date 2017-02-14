@@ -27,7 +27,7 @@ import java.util.Map;
  * @author Marcin Szleper
  */
 @RestController
-@RequestMapping(value = "/api/account", produces = {MediaTypes.HAL_JSON_VALUE, MediaType.APPLICATION_JSON_VALUE})
+@RequestMapping(value = "/api/account", produces = {MediaTypes.HAL_JSON_VALUE})
 public class AccountController {
     private static final String ACCOUNT_NOT_FOUND = "account not found";
     private final UserService userService;

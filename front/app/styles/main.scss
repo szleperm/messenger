@@ -1,0 +1,102 @@
+$icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts/bootstrap/";
+// bower:scss
+@import "bootstrap-sass-official/assets/stylesheets/_bootstrap.scss";
+// endbower
+
+.browsehappy {
+  margin: 0.2em 0;
+  background: #ccc;
+  color: #000;
+  padding: 0.2em 0;
+}
+.container-fluid {
+  padding-top: 25px;
+}
+.navbar{
+	margin-bottom: 0;
+	border-bottom: 0;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+.navbar, navbar-default.navbar-nav{
+  li.active > a, a:hover{
+     color: #5bac5c !important;
+  }
+}
+.nav-tabs{
+   a{
+      color: #777;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+   }
+   a:hover{
+    border: none;
+   }
+   li.active > a, a:hover{
+     color: #5bac5c !important;
+     background-color: transparent !important;
+  }
+}
+.input-group-addon{
+  color: #5bac5c !important;
+}
+label{
+  color: #5bac5c !important;
+}
+.modal-header{
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+.btn{
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+.bg-1 { 
+    background-color: #f7f7f7;
+    color: #5bac5c;
+}
+.bg-2 { 
+    background-color: #666666; 
+    color:#5bac5c;
+}
+p.footer-text {	
+	letter-spacing: 3px;
+  a, a:hover{
+    color: #5bac5c !important;
+  }	
+}
+.content{
+  h1, h2, h3, h4, h5, h6{
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #5bac5c;
+  }
+}
+.login-column{
+	height: 120%;
+}
+a{
+       &:focus {
+          outline: 0;
+       }
+}
+[ng\:cloak], [ng-cloak], .ng-cloak {
+  display: none !important;
+}
+.table-filter{
+	cursor: pointer;
+	cursor: hand;
+}
+.st-sort-ascent:after{
+    padding-left: 5px;
+    content: '\e155';
+    font-family: 'Glyphicons Halflings';
+    font-size: x-small;
+}
+
+.st-sort-descent:after{
+    padding-left: 5px;
+    content: '\e156';
+    font-family: 'Glyphicons Halflings';
+    font-size: x-small;
+}

@@ -71,7 +71,7 @@ public class MessageService {
                 .map(user -> Message.basedOn(message).withUser(user))
                 .map(messageRepository::save)
                 .orElseThrow(() -> new ResourceNotFoundException(RECIPIENT_NOT_FOUND));
-        message.setSent(true);
+        message.updateSent(true);
     }
 
     public Optional<MessageResource> update(MessageForm form, Long id) {

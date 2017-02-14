@@ -42,11 +42,11 @@ public class Message {
         this.read = false;
     }
 
-    public static Message basedOn(Message message){
+    public static Message basedOn(Message message) {
         return new Message(message);
     }
 
-    public Message withUser(User user){
+    public Message withUser(User user) {
         setUser(user);
         return this;
     }
@@ -107,16 +107,20 @@ public class Message {
         this.sentDate = sentDate;
     }
 
-    public Boolean isSent() {
-        return sent;
-    }
-
-    public void setSent(Boolean sent) {
+    public void updateSent(Boolean sent) {
         if (sent) setSentDate(LocalDateTime.now());
         this.sent = sent;
     }
 
-    public Boolean isRead() {
+    public Boolean getSent() {
+        return sent;
+    }
+
+    public void setSent(Boolean sent) {
+        this.sent = sent;
+    }
+
+    public Boolean getRead() {
         return read;
     }
 

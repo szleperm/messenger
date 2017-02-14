@@ -21,8 +21,8 @@ public enum MessageAssemblerStrategy implements Function<Message, MessageResourc
                     .sentDate(getFormattedDate(message.getSentDate()))
                     .from(message.getSenderName())
                     .to(message.getRecipientName())
-                    .sent(message.isSent())
-                    .read(message.isRead())
+                    .sent(message.getSent())
+                    .read(message.getRead())
                     .build()
     ),
     SINGLE_MESSAGE(message ->
@@ -32,8 +32,8 @@ public enum MessageAssemblerStrategy implements Function<Message, MessageResourc
                     .body(message.getBody())
                     .from(message.getSenderName())
                     .to(message.getRecipientName())
-                    .sent(message.isSent())
-                    .read(message.isRead())
+                    .sent(message.getSent())
+                    .read(message.getRead())
                     .sentDate(getFormattedDate(message.getSentDate()))
                     .build()
     );

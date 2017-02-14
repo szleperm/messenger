@@ -48,7 +48,7 @@ public class MessageForm {
         message.setRecipientName(this.to);
         message.setSenderName(user.getUsername());
         message.setRead(true);
-        message.setSent(false);
+        message.updateSent(false);
         return message;
     }
 

@@ -1,0 +1,9 @@
+<div class="container-fluid bg-1 text-center">
+</div>
+<div class="container">
+  <h2 ng-if="!authenticated">Welcome in <img src="/images/logo-nav.png" height="35" alt="messenger"><br>
+    <small>social media application</small>
+  </h2>
+  <h2 ng-if="authenticated">Hello {{principal.username}}</h2>
+  <p class="small" ng-if="authenticated">{{main.accountType()}}</p>
+</div>

@@ -1,0 +1,126 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Messenger</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+    <!-- build:css(.) styles/vendor.css -->
+    <!-- bower:css -->
+    <link rel="stylesheet" href="bower_components/angular-loading-bar/build/loading-bar.css" />
+    <!-- endbower -->
+    <!-- endbuild -->
+    <!-- build:css(.tmp) styles/main.css -->
+    <link rel="stylesheet" href="styles/main.css">
+    <!-- endbuild -->
+
+  </head>
+  <body ng-app="messengerApp">
+    <!--[if lte IE 8]>
+      <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
+
+    <!-- Add your site or application content here -->
+    <div class="header">
+      <div class="navbar navbar-default navbar-fixed-top" role="navigation" ng-cloak>
+        <div class="container">
+          <div class="navbar-header">
+
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#js-navbar-collapse">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+
+            <a class="navbar-brand" href="#/"><img src="/images/logo-nav.png" height="20" alt="messenger"></a>
+          </div>
+
+          <div class="collapse navbar-collapse" id="js-navbar-collapse" ng-controller="MenuCtrl as c">
+
+            <ul class="nav navbar-nav">
+             
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+              <li><a href="" ng-click="c.showLogin()" ng-show="!authenticated">Login</a></li>
+              <li><a href="" ng-click="c.showRegister()" ng-show="!authenticated">Register</a></li>
+              <li class="dropdown" uib-dropdown ng-show="authenticated">
+              	 <a role="button" class="dropdown-toggle" uib-dropdown-toggle>
+              	 	Account <b class="caret"></b>
+              	 </a>
+              	 <ul class="dropdown-menu">
+              	 	<li><a href="" ng-click="c.showChangePassword()">Change password</a></li>
+              	 </ul>
+              </li>
+              <li><a href="" ng-click="c.showLogout()" ng-show="authenticated">Logout</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container-fluid bg-1">
+    	<div class="logo">
+
+    	</div>
+    </div>
+
+  
+		      
+    		<div ng-view="" class="content"></div>
+    	
+      <div class="container bg-2">
+        <div class="container">
+          <p class="footer-text"><a href="mailto:marcin.szleper@gmail.com"><span class="glyphicon glyphicon-envelope"></span>Marcin Szleper</a> | <a href="#/">Home</a> | <a ng-href="#/about">About</a></p>
+        </div>
+      </div>
+     
+
+    
+
+
+    <!-- Google Analytics: change UA-XXXXX-X to be your site's ID -->
+     <script>
+       !function(A,n,g,u,l,a,r){A.GoogleAnalyticsObject=l,A[l]=A[l]||function(){
+       (A[l].q=A[l].q||[]).push(arguments)},A[l].l=+new Date,a=n.createElement(g),
+       r=n.getElementsByTagName(g)[0],a.src=u,r.parentNode.insertBefore(a,r)
+       }(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+       ga('create', 'UA-XXXXX-X');
+       ga('send', 'pageview');
+    </script>
+
+    <!-- build:js(.) scripts/vendor.js -->
+    <!-- bower:js -->
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/angular-animate/angular-animate.js"></script>
+    <script src="bower_components/angular-messages/angular-messages.js"></script>
+    <script src="bower_components/angular-cookies/angular-cookies.js"></script>
+    <script src="bower_components/angular-aria/angular-aria.js"></script>
+    <script src="bower_components/angular-resource/angular-resource.js"></script>
+    <script src="bower_components/angular-route/angular-route.js"></script>
+    <script src="bower_components/angular-touch/angular-touch.js"></script>
+    <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
+    <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap.js"></script>
+    <script src="bower_components/angular-smart-table/dist/smart-table.js"></script>
+    <script src="bower_components/angular-loading-bar/build/loading-bar.js"></script>
+    <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+    <!-- endbower -->
+    <!-- endbuild -->
+
+        <!-- build:js({.tmp,app}) scripts/scripts.js -->
+        <script src="scripts/app.js"></script>
+        <script src="scripts/controllers/main.js"></script>
+        <script src="scripts/controllers/about.js"></script>
+        <script src="scripts/services/auth.js"></script>
+        <script src="scripts/controllers/login.js"></script>
+        <script src="scripts/controllers/menu.js"></script>
+        <script src="scripts/directives/compareto.js"></script>
+        <script src="scripts/directives/unique.js"></script>
+        <script src="scripts/controllers/account.js"></script>
+        <script src="scripts/controllers/administration.js"></script>
+        <script src="scripts/services/user.js"></script>
+        <!-- endbuild -->
+</body>
+</html>

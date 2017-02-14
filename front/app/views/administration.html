@@ -1,0 +1,46 @@
+<div class="container-fluid bg-1 text-center">
+	<h2>Administration</h2>
+</div>
+<div class="container">
+	<table st-table="displayedCollection" st-safe-src='userManagement.users' class="table">
+		<thead>
+			<tr>
+				<th colspan="4">
+					<div class="form-group form-inline">        
+						<div class="input-group col-sm-4">
+							<input st-search placeholder="search..." class="form-control" type="text"/>
+							<span class="input-group-addon">
+								<span class="glyphicon glyphicon-search"></span>
+							</span>
+						</div>
+						<div class="input-group col-sm-2">
+							<input ng-model="usersManagement.itemsByPage" placeholder="items/page" class="form-control" type="text"/>
+							<span class="input-group-addon">by page</span>
+						</div>
+					</div>
+				</th>
+			</tr>
+			<tr class="active">
+				<th st-sort="id" st-sort-default="true" class="col-sm-1"><span class="table-filter">Id</span></th>
+				<th st-sort="name" class="col-sm-4"><span class="table-filter">Name</span></th>
+				<th st-sort="email" class="col-sm-2"><span class="table-filter">Email</span></th>
+		        <th class="col-sm-3">Roles</th>  
+   		 	</tr>
+   		 </thead>
+   		 <tbody>
+   		 	<tr ng-repeat="user in displayedCollection">
+   		 		<td>{{user.id}}</td>
+   		 		<td>{{user.name}}</td>
+   		 		<td>{{user.email}}</td>
+   		 		<td><span ng-repeat="role in user.roles"><span class="label label-default">{{role}}</span> </span></td>
+   		 	</tr>
+   		 </tbody>
+   		 <tfoot>
+			<tr>
+				<td colspan="4" class="text-center">
+					<div st-pagination="" st-items-by-page="usersManagement.itemsByPage" st-displayed-pages="7"></div>
+				</td>
+			</tr>
+		</tfoot>
+	</table>
+</div>
