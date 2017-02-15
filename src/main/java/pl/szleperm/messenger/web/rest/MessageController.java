@@ -26,7 +26,7 @@ import java.util.Optional;
  */
 
 @RestController
-@RequestMapping(value = "/api/messages", produces = {MediaTypes.HAL_JSON_VALUE, MediaType.APPLICATION_JSON_VALUE})
+@RequestMapping(value = "/api/messages", produces = {MediaTypes.HAL_JSON_VALUE})
 public class MessageController {
 
     private static final String ACCOUNT_NOT_FOUND = "account not found";

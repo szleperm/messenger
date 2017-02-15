@@ -1,9 +1,26 @@
 <div class="container-fluid bg-1 text-center">
 </div>
 <div class="container">
-  <h2 ng-if="!authenticated">Welcome in <img src="/images/logo-nav.png" height="35" alt="messenger"><br>
-    <small>social media application</small>
-  </h2>
-  <h2 ng-if="authenticated">Hello {{principal.username}}</h2>
-  <p class="small" ng-if="authenticated">{{main.accountType()}}</p>
+  <h2 ng-if="!authenticated">Welcome in <img src="/images/logo-nav.png" height="35" alt="messenger"></h2>
+  <h2 ng-if="authenticated">{{principal.username}}'s Inbox</h2>
+  <div ng-if="authenticated && main.messages">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>FROM</th>
+          <th>SUBJECT</th>
+          <th>DATE</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="message in main.messages" ng-class="{active: !message.read}">
+          <td>{{message.from}}</td>
+          <td>{{message.subject}}</td>
+          <td>{{message.sentDate}}</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="small">{{message.subject}}</p>
+    <p class="small">{{message.from}}</p>
+  </div>
 </div>

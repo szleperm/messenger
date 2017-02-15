@@ -5,7 +5,7 @@
  * @name messengerApp.User
  * @description
  * # User
- * Factory in the customersSecurityApp.
+ * Factory in the messengerApp.
  */
 angular.module('messengerApp')
   .factory('User', function ($resource) {
